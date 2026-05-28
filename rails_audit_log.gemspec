@@ -3,8 +3,8 @@ require_relative "lib/rails_audit_log/version"
 Gem::Specification.new do |spec|
   spec.name        = "rails_audit_log"
   spec.version     = RailsAuditLog::VERSION
-  spec.authors     = [ "Chuck Smith" ]
-  spec.email       = [ "eclectic-coding@users.noreply.github.com" ]
+  spec.authors     = ["Chuck Smith"]
+  spec.email       = ["eclectic-coding@users.noreply.github.com"]
   spec.homepage    = "TODO"
   spec.summary     = "TODO: Summary of RailsAuditLog."
   spec.description = "TODO: Description of RailsAuditLog."

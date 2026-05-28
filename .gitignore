@@ -3,6 +3,9 @@
 /log/*.log
 /pkg/
 /tmp/
+/spec/dummy/log/
+/spec/dummy/tmp/
+/spec/dummy/db/*.sqlite3
 
 CLAUDE.md
 .claude/
