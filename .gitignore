@@ -3,3 +3,6 @@
 /log/*.log
 /pkg/
 /tmp/
+
+CLAUDE.md
+.claude/
