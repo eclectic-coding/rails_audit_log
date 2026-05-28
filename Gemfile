@@ -1,8 +1,5 @@
 source "https://rubygems.org"
 
-eval_gemfile 'config/gems/app.rb'
-
-
 # Specify your gem's dependencies in rails_audit_log.gemspec.
 gemspec
 
