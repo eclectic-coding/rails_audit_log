@@ -10,8 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Enough to record changes in a production app.
 
-- `AuditLogEntry` model backed by a `audit_log_entries` table
-  - Columns: `id`, `event` (create/update/destroy), `item_type`, `item_id`, `object_changes` (JSON), `actor_type`, `actor_id`, `created_at`
 - Migration generator: `bin/rails generate rails_audit_log:install`
 - `has_audit_log` concern — opt-in on any ActiveRecord model via `include RailsAuditLog::Auditable`
 - Tracks `create`, `update`, and `destroy` callbacks automatically

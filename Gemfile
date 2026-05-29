@@ -14,6 +14,8 @@ gem "bundler-audit", require: false
 
 group :test do
   gem "rspec-rails"
+  gem "simplecov", require: false
+  gem "simplecov-json", require: false
 end
 
 # Start debugger with binding.b [https://github.com/ruby/debug]
