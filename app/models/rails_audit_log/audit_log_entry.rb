@@ -10,6 +10,7 @@ module RailsAuditLog
     validates :event, presence: true, inclusion: { in: EVENTS }
     validates :item_type, presence: true
     validates :item_id, presence: true
+    validate :metadata_must_be_a_hash
 
     # Event scopes
     scope :created_events,  -> { where(event: "create") }
@@ -81,6 +82,14 @@ module RailsAuditLog
 
       object_changes.transform_values { |from_to| { from: from_to[0], to: from_to[1] } }
     end
+
+    private
+
+    def metadata_must_be_a_hash
+      errors.add(:metadata, "must be a Hash") if metadata.present? && !metadata.is_a?(Hash)
+    end
+
+    public
 
     # Attribute scope — uses json_extract (SQLite/MySQL) or ->> (PostgreSQL)
     scope :touching, ->(attribute) {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `AuditLogEntry#metadata` — nullable JSON column for arbitrary key/value storage; validated to be a Hash when present
+
 ## [0.4.0] - 2026-05-29
 
 ### Added
