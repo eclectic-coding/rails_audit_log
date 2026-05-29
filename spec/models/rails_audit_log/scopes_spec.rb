@@ -1,0 +1,97 @@
+require "rails_helper"
+
+RSpec.describe RailsAuditLog::AuditLogEntry, "query scopes" do
+  let(:post)  { Post.create!(title: "Hello") }
+  let(:user)  { User.create!(name: "Alice") }
+
+  def entry(attrs = {})
+    described_class.create!({ event: "create", item_type: "Post", item_id: post.id }.merge(attrs))
+  end
+
+  describe "event scopes" do
+    before do
+      entry(event: "create")
+      entry(event: "update")
+      entry(event: "destroy")
+    end
+
+    it ".created_events returns only create entries" do
+      expect(described_class.created_events.pluck(:event)).to all eq("create")
+    end
+
+    it ".updated_events returns only update entries" do
+      expect(described_class.updated_events.pluck(:event)).to all eq("update")
+    end
+
+    it ".destroyed_events returns only destroy entries" do
+      expect(described_class.destroyed_events.pluck(:event)).to all eq("destroy")
+    end
+  end
+
+  describe ".by_actor" do
+    it "returns entries for the given actor" do
+      entry(actor_type: "User", actor_id: user.id)
+      entry(actor_type: nil,    actor_id: nil)
+
+      results = described_class.by_actor(user)
+      expect(results.count).to eq(1)
+      expect(results.first.actor_id).to eq(user.id)
+    end
+  end
+
+  describe ".for_resource" do
+    it "returns entries for a specific record" do
+      other = Post.create!(title: "Other")
+      entry(item_type: "Post", item_id: post.id)
+      entry(item_type: "Post", item_id: other.id)
+
+      expect(described_class.for_resource(post).pluck(:item_id)).to all eq(post.id)
+    end
+
+    it "returns all entries for a class" do
+      entry(item_type: "Post", item_id: post.id)
+      entry(item_type: "User", item_id: user.id)
+
+      expect(described_class.for_resource(Post).pluck(:item_type)).to all eq("Post")
+    end
+  end
+
+  describe ".since and .until" do
+    it ".since returns entries at or after the given time" do
+      old = entry
+      old.update_columns(created_at: 2.days.ago)
+      recent = entry
+
+      results = described_class.since(1.day.ago)
+      expect(results).to include(recent)
+      expect(results).not_to include(old)
+    end
+
+    it ".until returns entries at or before the given time" do
+      old = entry
+      old.update_columns(created_at: 2.days.ago)
+      entry
+
+      results = described_class.until(1.day.ago)
+      expect(results).to include(old)
+    end
+  end
+
+  describe ".touching" do
+    before { post; described_class.delete_all }
+
+    it "returns entries where object_changes includes the given attribute" do
+      entry(object_changes: { "title" => ["Hello", "World"] })
+      entry(object_changes: { "body"  => [nil, "Content"] })
+
+      results = described_class.touching(:title)
+      expect(results.count).to eq(1)
+      expect(results.first.object_changes["title"]).to eq(["Hello", "World"])
+    end
+
+    it "returns no entries when no changes include the attribute" do
+      entry(object_changes: { "body" => [nil, "Content"] })
+      expect(described_class.touching(:title)).to be_empty
+    end
+  end
+end

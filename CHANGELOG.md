@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `.created_events`, `.updated_events`, `.destroyed_events` scopes on `AuditLogEntry`
+- `.by_actor(actor)` scope — filter entries by polymorphic actor
+- `.for_resource(record_or_class)` scope — filter by a specific record or all entries for a class
+- `.since(time)` / `.until(time)` scopes — time-bounded queries
+- `.touching(attribute)` scope — entries where `object_changes` includes the given attribute
+
 ## [0.1.0] - 2026-05-29
 
 ### Added
