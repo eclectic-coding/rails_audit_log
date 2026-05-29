@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `RailsAuditLog.version_at(record, time)` — returns an unsaved AR instance reflecting the record's state at an arbitrary timestamp; finds the last audit entry at or before `time`, applies the post-change attribute values, and returns `nil` if no history exists or the record was destroyed at or before `time`
 - `AuditLogEntry#previous` / `#next` — navigate the version chain for a given record; returns the adjacent entry (by `id`) scoped to the same `item_type` and `item_id`, or `nil` at either end
 - `AuditLogEntry#reify` — returns an unsaved ActiveRecord instance reflecting the record's state before the audit entry was created; returns `nil` for `create` events, restores pre-change attribute values for `update` events (merged with the current record's unchanged attributes), and reconstructs the pre-delete state for `destroy` events
 - `object` JSON column on `audit_log_entries` — stores the full pre-change attribute snapshot alongside `object_changes`; `reify` uses it directly when present, avoiding a database lookup

@@ -34,4 +34,23 @@ module RailsAuditLog
   ensure
     Thread.current[:rails_audit_log_disabled] = previous
   end
+
+  def self.version_at(record, time)
+    entry = AuditLogEntry
+      .where(item_type: record.class.name, item_id: record.id)
+      .where(created_at: ..time)
+      .order(created_at: :desc, id: :desc)
+      .first
+
+    return nil if entry.nil? || entry.event == "destroy"
+
+    klass = record.class
+    to_attrs = (entry.object_changes || {}).transform_values { |v| v[1] }
+    attrs = entry.object.present? ? entry.object.merge(to_attrs) : to_attrs
+
+    instance = klass.new
+    instance.assign_attributes(attrs.except("id"))
+    instance.id = attrs.fetch("id") { entry.item_id }
+    instance
+  end
 end
