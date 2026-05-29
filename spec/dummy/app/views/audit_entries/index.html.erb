@@ -1,0 +1,78 @@
+<style>
+  .page-header { margin-bottom: 20px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+  .page-header p  { color: #666; margin-top: 4px; }
+  .stats { display: flex; gap: 12px; margin-bottom: 20px; }
+  .stat { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; padding: 12px 16px; min-width: 100px; }
+  .stat-value { font-size: 24px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; }
+  th { background: #f9f9f9; text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #666; border-bottom: 1px solid #e5e5e5; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge-create  { background: #dcfce7; color: #166534; }
+  .badge-update  { background: #dbeafe; color: #1e40af; }
+  .badge-destroy { background: #fee2e2; color: #991b1b; }
+  .changes { font-family: monospace; font-size: 12px; color: #444; max-width: 340px; white-space: pre-wrap; word-break: break-all; }
+  .muted { color: #aaa; font-style: italic; }
+</style>
+
+<div class="page-header">
+  <h2>Audit Log Entries</h2>
+  <p>Last 50 entries, newest first</p>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value"><%= RailsAuditLog::AuditLogEntry.count %></div>
+    <div class="stat-label">Total</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value"><%= RailsAuditLog::AuditLogEntry.created_events.count %></div>
+    <div class="stat-label">Creates</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value"><%= RailsAuditLog::AuditLogEntry.updated_events.count %></div>
+    <div class="stat-label">Updates</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value"><%= RailsAuditLog::AuditLogEntry.destroyed_events.count %></div>
+    <div class="stat-label">Destroys</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Event</th>
+      <th>Item</th>
+      <th>Actor</th>
+      <th>Changes</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @entries.each do |entry| %>
+      <tr>
+        <td><span class="badge badge-<%= entry.event %>"><%= entry.event %></span></td>
+        <td><%= entry.item_type %> #<%= entry.item_id %></td>
+        <td>
+          <% if entry.actor_type %>
+            <%= entry.actor_type %> #<%= entry.actor_id %>
+          <% else %>
+            <span class="muted">anonymous</span>
+          <% end %>
+        </td>
+        <td>
+          <% if entry.object_changes.present? %>
+            <div class="changes"><%= JSON.pretty_generate(entry.object_changes) %></div>
+          <% else %>
+            <span class="muted">—</span>
+          <% end %>
+        </td>
+        <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

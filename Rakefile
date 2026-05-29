@@ -21,9 +21,9 @@ namespace :dev do
   dummy_env = { "RAILS_ENV" => "development" }
   dummy_rake = "cd spec/dummy && bundle exec rake"
 
-  desc "Create and migrate the development database"
+  desc "Create and load the development database from schema"
   task :setup do
-    sh dummy_env, "#{dummy_rake} db:create db:migrate"
+    sh dummy_env, "#{dummy_rake} db:create db:schema:load"
   end
 
   desc "Seed the development database"
@@ -31,8 +31,8 @@ namespace :dev do
     sh dummy_env, "#{dummy_rake} db:seed"
   end
 
-  desc "Drop, recreate, migrate, and seed the development database"
+  desc "Drop, recreate, load schema, and seed the development database"
   task :reset do
-    sh dummy_env, "#{dummy_rake} db:drop db:create db:migrate db:seed"
+    sh dummy_env, "#{dummy_rake} db:drop db:create db:schema:load db:seed"
   end
 end
