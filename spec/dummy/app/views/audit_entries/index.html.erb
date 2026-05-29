@@ -79,6 +79,9 @@
           <% else %>
             <span class="muted">anonymous</span>
           <% end %>
+          <% if entry.whodunnit_snapshot.present? %>
+            <div style="font-size:11px;color:#666;margin-top:2px;"><%= entry.whodunnit_snapshot %></div>
+          <% end %>
         </td>
         <td>
           <% if entry.changed_attributes.any? %>
