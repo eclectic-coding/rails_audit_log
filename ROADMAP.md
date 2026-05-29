@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Enough to record changes in a production app.
 
-- Migration generator: `bin/rails generate rails_audit_log:install`
 - `has_audit_log` concern — opt-in on any ActiveRecord model via `include RailsAuditLog::Auditable`
 - Tracks `create`, `update`, and `destroy` callbacks automatically
 - `model_instance.audit_log_entries` association
