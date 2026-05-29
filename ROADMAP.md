@@ -7,12 +7,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 ---
 
 
-## 0.2.0 — Query API
-
-> A chainable, readable interface for querying the audit trail.
-
-
----
 
 ## 0.3.0 — Selective tracking
 

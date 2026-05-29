@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-29
+
 ### Added
 
 - `.created_events`, `.updated_events`, `.destroyed_events` scopes on `AuditLogEntry`
@@ -32,5 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.2.0
 [0.1.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.1.0
