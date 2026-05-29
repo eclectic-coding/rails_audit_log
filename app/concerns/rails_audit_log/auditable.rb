@@ -17,22 +17,35 @@ module RailsAuditLog
       after_update  :record_audit_update
       after_destroy :record_audit_destroy
 
-      # Intercept has_many to inject after_add/after_remove callbacks when
-      # association tracking is enabled. Must be defined after has_many
-      # :audit_log_entries so that internal association is not affected.
+      # Intercept has_many (including :through) and has_and_belongs_to_many to
+      # inject after_add/after_remove callbacks when association tracking is
+      # enabled. Must be defined after has_many :audit_log_entries so that the
+      # internal association is not affected.
       def self.has_many(name, scope = nil, **options, &extension)
         if _audit_log_associations && name.to_s != "audit_log_entries"
-          assoc_name = name.to_s
-          tracked = _audit_log_associations == true ||
-                    Array(_audit_log_associations).map(&:to_s).include?(assoc_name)
-          if tracked
-            add_cb    = ->(owner, rec) { owner.send(:record_audit_association_change, assoc_name, nil, { "id" => rec.id, "type" => rec.class.name }) }
-            remove_cb = ->(owner, rec) { owner.send(:record_audit_association_change, assoc_name, { "id" => rec.id, "type" => rec.class.name }, nil) }
-            options[:after_add]    = [*options[:after_add]]    + [add_cb]
-            options[:after_remove] = [*options[:after_remove]] + [remove_cb]
-          end
+          options = _build_audit_association_options(name.to_s, options)
         end
         scope ? super(name, scope, **options, &extension) : super(name, **options, &extension)
+      end
+
+      def self.has_and_belongs_to_many(name, scope = nil, **options, &extension)
+        if _audit_log_associations
+          options = _build_audit_association_options(name.to_s, options)
+        end
+        scope ? super(name, scope, **options, &extension) : super(name, **options, &extension)
+      end
+
+      def self._build_audit_association_options(assoc_name, options)
+        tracked = _audit_log_associations == true ||
+                  Array(_audit_log_associations).map(&:to_s).include?(assoc_name)
+        return options unless tracked
+
+        add_cb    = ->(owner, rec) { owner.send(:record_audit_association_change, assoc_name, nil, { "id" => rec.id, "type" => rec.class.name }) }
+        remove_cb = ->(owner, rec) { owner.send(:record_audit_association_change, assoc_name, { "id" => rec.id, "type" => rec.class.name }, nil) }
+        options.merge(
+          after_add:    [*options[:after_add]]    + [add_cb],
+          after_remove: [*options[:after_remove]] + [remove_cb]
+        )
       end
     end
 

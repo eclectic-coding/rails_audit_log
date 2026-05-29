@@ -6,14 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.6.0 — Association tracking
-
-> Capture changes to relationships, not just scalar attributes.
-
-- Join-table support for `has_and_belongs_to_many` and `has_many :through`
-
----
-
 ## 0.7.0 — Performance & scale
 
 > Make auditing cheap enough for high-volume apps.

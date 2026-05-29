@@ -43,4 +43,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
   end
 
   add_index :comments, :post_id
+
+  create_table :tags, force: :cascade do |t|
+    t.string :name, null: false
+    t.timestamps
+  end
+
+  # HABTM join table for Post <-> Tag
+  create_table :post_tags, id: false, force: :cascade do |t|
+    t.bigint :post_id, null: false
+    t.bigint :tag_id,  null: false
+  end
+
+  add_index :post_tags, [:post_id, :tag_id], unique: true
+
+  # Join model for has_many :through
+  create_table :taggings, force: :cascade do |t|
+    t.bigint :post_id, null: false
+    t.bigint :tag_id,  null: false
+    t.timestamps
+  end
+
+  add_index :taggings, [:post_id, :tag_id], unique: true
 end
