@@ -1,9 +1,5 @@
-# Configure Pull Request Bot Comments
-comment:
-  layout: "reach, diff, flags, files"
-  behavior: default
-  # Only post or update the comment if coverage actually changes
-  require_changes: true
+# Disable PR bot comments — status checks (green/red) are sufficient
+comment: false
 
 # Configure Commit Status Checks (the green checkmark/red X list)
 coverage:
