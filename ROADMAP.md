@@ -6,17 +6,10 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-
-
-
 ## 0.4.0 — Object reconstruction (reification)
 
 > Rebuild what a record looked like at any point in time.
 
-- `AuditLogEntry#reify` — returns an unsaved ActiveRecord instance reflecting the object's state at that audit entry
-- Full object snapshot stored alongside `object_changes` (configurable — diff-only mode available for storage savings)
-- `model_instance.audit_log_entries.first.reify` reconstruct the pre-change state
-- `AuditLogEntry#previous` / `#next` — navigate the version chain for a given record
 - `RailsAuditLog.version_at(record, time)` — convenience method to reify a record at an arbitrary timestamp
 
 ---
