@@ -23,6 +23,10 @@ module RailsAuditLog
       end
     end
 
+    def skip_audit_log
+      RailsAuditLog.disable { yield }
+    end
+
     private
 
     def record_audit_create
@@ -39,6 +43,8 @@ module RailsAuditLog
     end
 
     def record_audit_entry(event, changes)
+      return unless RailsAuditLog.enabled?
+
       filtered = filter_changes(changes)
       return if filtered.empty? && event == "update"
 
