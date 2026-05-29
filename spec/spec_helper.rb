@@ -3,7 +3,7 @@ require "simplecov-json"
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::JSONFormatter,
+  SimpleCov::Formatter::JSONFormatter
 ])
 
 SimpleCov.start "rails" do
