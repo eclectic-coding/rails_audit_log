@@ -44,6 +44,23 @@ end
 post = Post.first
 post.skip_audit_log { post.update!(body: "Silent body change.") }
 
+# Demonstrate 0.4.0 — reify and version chain navigation
+puts "  Demonstrating reify and version_at..."
+versioned = RailsAuditLog.with_actor(alice) do
+  Post.create!(title: "Versioned Post", body: "Initial body.")
+end
+versioned.update!(title: "Versioned Post (v2)")
+versioned.update!(title: "Versioned Post (v3)", body: "Final body.")
+
+entries = versioned.audit_log_entries.order(:id)
+puts "  version chain: #{entries.map(&:event).join(' -> ')}"
+puts "  reify on update: title before = #{entries.updated_events.first.reify.title.inspect}"
+puts "  previous/next: #{entries.second.previous.event} -> #{entries.second.event} -> #{entries.second.next.event}"
+
+t_after_v2 = entries.updated_events.first.created_at
+snapshot = RailsAuditLog.version_at(versioned, t_after_v2)
+puts "  version_at(after v2 update): title = #{snapshot.title.inspect}"
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
 puts "  #{Article.count} articles (only: [:title])"

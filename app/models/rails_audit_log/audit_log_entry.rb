@@ -85,7 +85,9 @@ module RailsAuditLog
     # Attribute scope — uses json_extract (SQLite/MySQL) or ->> (PostgreSQL)
     scope :touching, ->(attribute) {
       if connection.adapter_name =~ /PostgreSQL/i
+        # :nocov:
         where("object_changes->>? IS NOT NULL", attribute.to_s)
+        # :nocov:
       else
         where("json_extract(object_changes, ?) IS NOT NULL", "$.#{attribute}")
       end

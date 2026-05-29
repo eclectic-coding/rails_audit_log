@@ -39,7 +39,7 @@ Every `create`, `update`, and `destroy` is now recorded automatically:
 
 ```ruby
 article = Article.create!(title: "Hello")
-article.audit_log_entries.count      # => 1
+article.audit_log_entries.count       # => 1
 article.audit_log_entries.first.event # => "create"
 
 article.update!(title: "World")
@@ -75,6 +75,123 @@ Use `RailsAuditLog.with_actor` in background jobs, rake tasks, or seeds:
 RailsAuditLog.with_actor(current_user) do
   article.update!(status: "published")
 end
+```
+
+### Querying the audit log
+
+```ruby
+# Event scopes
+article.audit_log_entries.created_events
+article.audit_log_entries.updated_events
+article.audit_log_entries.destroyed_events
+
+# Filter by actor, resource, or time
+RailsAuditLog::AuditLogEntry.by_actor(current_user)
+RailsAuditLog::AuditLogEntry.for_resource(Article)
+RailsAuditLog::AuditLogEntry.for_resource(article)
+RailsAuditLog::AuditLogEntry.since(1.week.ago)
+RailsAuditLog::AuditLogEntry.until(Date.yesterday)
+
+# Find entries that touched a specific attribute
+RailsAuditLog::AuditLogEntry.touching(:title)
+
+# Inspect what changed
+entry = article.audit_log_entries.last
+entry.changed_attributes  # => ["title"]
+entry.diff
+# => { "title" => { from: "Hello", to: "World" } }
+```
+
+### Selective tracking
+
+Track only specific attributes, or exclude noisy ones:
+
+```ruby
+class Article < ApplicationRecord
+  include RailsAuditLog::Auditable
+
+  # Track only these columns
+  audit_log only: [:title, :status]
+
+  # Or exclude specific columns
+  audit_log ignore: [:cached_at, :views_count]
+end
+```
+
+Configure global defaults in an initializer:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.ignored_attributes = %w[updated_at cached_at]
+```
+
+Updates that produce no tracked changes after filtering are silently skipped.
+
+### Disabling auditing
+
+Suppress all audit writes inside a block — thread-safe, works in jobs and imports:
+
+```ruby
+RailsAuditLog.disable do
+  Article.insert_all!(bulk_rows)
+end
+
+RailsAuditLog.enabled? # => true (restored after the block)
+```
+
+Disable on a specific record instance:
+
+```ruby
+article.skip_audit_log { article.update!(cached_at: Time.current) }
+```
+
+### Object reconstruction
+
+#### Reify a single entry
+
+`AuditLogEntry#reify` returns an unsaved ActiveRecord instance reflecting the record's state **before** the entry was recorded:
+
+```ruby
+article.update!(title: "v2")
+entry = article.audit_log_entries.updated_events.last
+
+previous = entry.reify
+previous.title   # => "v1"  (the pre-update state)
+previous.persisted? # => false
+```
+
+Returns `nil` for `create` entries (nothing existed before).
+
+#### Reconstruct state at any point in time
+
+```ruby
+snapshot = RailsAuditLog.version_at(article, 1.week.ago)
+snapshot.title  # => whatever the title was a week ago
+```
+
+Returns `nil` if the record had no history at that time or was already destroyed.
+
+#### Navigate the version chain
+
+```ruby
+entry = article.audit_log_entries.updated_events.last
+entry.previous  # => the entry before this one
+entry.next      # => the entry after this one (nil if last)
+```
+
+### Object snapshot storage
+
+By default every entry stores a full `object` snapshot of the pre-change state alongside `object_changes`. This makes `reify` and `version_at` reliable without any database lookups:
+
+```ruby
+entry.object          # => { "id" => 1, "title" => "v1", ... }
+entry.object_changes  # => { "title" => ["v1", "v2"] }
+```
+
+To save storage at the cost of reduced reification accuracy, switch to diff-only mode:
+
+```ruby
+RailsAuditLog.store_snapshot = false
 ```
 
 ## Requirements
