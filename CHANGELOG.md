@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `audit_log ignore: [:attr]` — exclude listed attributes from tracking on a model
 - `RailsAuditLog.ignored_attributes` — global default ignored columns (default: `["updated_at"]`); configure in an initializer
 - Updates that result in no tracked changes after filtering are silently skipped
+- `RailsAuditLog.disable { }` — suppresses all audit writes inside the block (thread-safe)
+- `RailsAuditLog.enabled?` — returns whether auditing is currently active on this thread
+- `record.skip_audit_log { }` — instance-level helper that delegates to `RailsAuditLog.disable`
 
 ## [0.2.0] - 2026-05-29
 

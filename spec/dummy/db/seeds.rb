@@ -35,6 +35,15 @@ RailsAuditLog.with_actor(alice) do
   article.update!(title: "My Article (revised)", status: "published")
 end
 
+# Demonstrate disable: bulk-insert posts without audit noise
+RailsAuditLog.disable do
+  3.times { |i| Post.create!(title: "Bulk post #{i + 1}", body: "Created silently.") }
+end
+
+# Demonstrate skip_audit_log on an instance
+post = Post.first
+post.skip_audit_log { post.update!(body: "Silent body change.") }
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
 puts "  #{Article.count} articles (only: [:title])"

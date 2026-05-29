@@ -21,4 +21,16 @@ module RailsAuditLog
   ensure
     self.actor = previous
   end
+
+  def self.enabled?
+    !Thread.current[:rails_audit_log_disabled]
+  end
+
+  def self.disable
+    previous = Thread.current[:rails_audit_log_disabled]
+    Thread.current[:rails_audit_log_disabled] = true
+    yield
+  ensure
+    Thread.current[:rails_audit_log_disabled] = previous
+  end
 end
