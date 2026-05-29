@@ -1,6 +1,8 @@
 # RailsAuditLog
 
+[![CI](https://github.com/eclectic-coding/rails_audit_log/actions/workflows/ci.yml/badge.svg)](https://github.com/eclectic-coding/rails_audit_log/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/rails_audit_log.svg)](https://badge.fury.io/rb/rails_audit_log)
+[![Downloads](https://img.shields.io/gem/dt/rails_audit_log.svg)](https://rubygems.org/gems/rails_audit_log)
 [![Ruby](https://img.shields.io/badge/ruby-%3E%3D%203.3-ruby)](https://www.ruby-lang.org)
 [![codecov](https://codecov.io/gh/eclectic-coding/rails_audit_log/branch/main/graph/badge.svg)](https://codecov.io/gh/eclectic-coding/rails_audit_log)
 
