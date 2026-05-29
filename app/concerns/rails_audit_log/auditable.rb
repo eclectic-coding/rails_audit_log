@@ -51,6 +51,7 @@ module RailsAuditLog
       return if filtered.empty? && event == "update"
 
       actor = RailsAuditLog.actor
+      req_meta = RailsAuditLog.request_metadata
       RailsAuditLog::AuditLogEntry.create!(
         event:               event,
         item_type:           self.class.name,
@@ -58,6 +59,7 @@ module RailsAuditLog
         object_changes:      filtered,
         object:              snapshot,
         reason:              RailsAuditLog.reason,
+        metadata:            req_meta.presence,
         whodunnit_snapshot:  actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
         actor_type:          actor&.class&.name,
         actor_id:            actor.respond_to?(:id) ? actor.id : nil

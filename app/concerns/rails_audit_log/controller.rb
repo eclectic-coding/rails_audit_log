@@ -5,6 +5,8 @@ module RailsAuditLog
     included do
       before_action :set_audit_log_actor
       after_action  :clear_audit_log_actor
+      before_action :capture_audit_log_request_metadata
+      after_action  :clear_audit_log_request_metadata
     end
 
     class_methods do
@@ -26,6 +28,21 @@ module RailsAuditLog
 
     def clear_audit_log_actor
       RailsAuditLog.actor = nil
+    end
+
+    def capture_audit_log_request_metadata
+      return unless RailsAuditLog.capture_request_metadata
+
+      RailsAuditLog.request_metadata = {
+        "remote_ip" => request.remote_ip,
+        "user_agent" => request.user_agent
+      }.compact
+    end
+
+    def clear_audit_log_request_metadata
+      return unless RailsAuditLog.capture_request_metadata
+
+      RailsAuditLog.request_metadata = nil
     end
   end
 end

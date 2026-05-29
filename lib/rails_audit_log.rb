@@ -6,9 +6,18 @@ module RailsAuditLog
   # Override in an initializer: RailsAuditLog.ignored_attributes = %w[updated_at cached_at]
   mattr_accessor :ignored_attributes, default: %w[updated_at]
   mattr_accessor :store_snapshot, default: true
+  mattr_accessor :capture_request_metadata, default: false
   mattr_accessor :whodunnit_display, default: ->(actor) {
     actor.respond_to?(:name) ? actor.name.to_s : actor.to_s
   }
+
+  def self.request_metadata
+    Thread.current[:rails_audit_log_request_metadata]
+  end
+
+  def self.request_metadata=(value)
+    Thread.current[:rails_audit_log_request_metadata] = value
+  end
 
   def self.actor
     Thread.current[:rails_audit_log_actor]
