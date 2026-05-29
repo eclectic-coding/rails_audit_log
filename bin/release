@@ -62,7 +62,7 @@ sed -i '' \
 echo "==> Pruning shipped ROADMAP section..."
 MINOR_VERSION=$(echo "$VERSION" | cut -d. -f1-2)
 awk -v ver="$MINOR_VERSION" '
-  /^## v/ && $0 ~ ("^## v" ver "([^0-9]|$)") { skip=1; next }
+  /^## / && $0 ~ ("^## " ver "([^0-9]|$)") { skip=1; next }
   skip && /^---/ { skip=0; next }
   !skip
 ' ROADMAP.md > ROADMAP.tmp && mv ROADMAP.tmp ROADMAP.md
