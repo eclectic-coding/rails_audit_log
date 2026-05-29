@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `audit_log version_limit: N` — caps the number of `AuditLogEntry` records retained per tracked object; oldest entries are pruned automatically after each write once the limit is exceeded
+- `RailsAuditLog.version_limit = N` — global default applied when no per-model limit is set; per-model `version_limit:` takes precedence
+
 ## [0.6.0] - 2026-05-29
 
 ### Added

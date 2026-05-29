@@ -7,6 +7,7 @@ module RailsAuditLog
   mattr_accessor :ignored_attributes, default: %w[updated_at]
   mattr_accessor :store_snapshot, default: true
   mattr_accessor :capture_request_metadata, default: false
+  mattr_accessor :version_limit, default: nil
   mattr_accessor :whodunnit_display, default: ->(actor) {
     actor.respond_to?(:name) ? actor.name.to_s : actor.to_s
   }
