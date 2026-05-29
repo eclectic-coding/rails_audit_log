@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `audit_log associations: true` — automatically records `has_many` add/remove events as `update` entries on the parent model; `object_changes` stores `{ "association_name" => [nil, { "id" => X, "type" => "ClassName" }] }` for adds and `[{ "id" => X, "type" => "ClassName" }, nil]` for removes
+- `audit_log associations: [:tags, :comments]` — restrict association tracking to a named subset; associations not in the list are unaffected
+- `has_many` with `after_add`/`after_remove` callbacks from other gems are preserved when association tracking is enabled; existing callbacks are merged rather than replaced
+
 ## [0.5.0] - 2026-05-29
 
 ### Added

@@ -3,9 +3,10 @@ module RailsAuditLog
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :_audit_log_only,   default: nil
-      class_attribute :_audit_log_ignore, default: nil
-      class_attribute :_audit_log_meta,   default: nil
+      class_attribute :_audit_log_only,         default: nil
+      class_attribute :_audit_log_ignore,        default: nil
+      class_attribute :_audit_log_meta,          default: nil
+      class_attribute :_audit_log_associations,  default: nil
 
       has_many :audit_log_entries,
                class_name: "RailsAuditLog::AuditLogEntry",
@@ -15,13 +16,32 @@ module RailsAuditLog
       after_create  :record_audit_create
       after_update  :record_audit_update
       after_destroy :record_audit_destroy
+
+      # Intercept has_many to inject after_add/after_remove callbacks when
+      # association tracking is enabled. Must be defined after has_many
+      # :audit_log_entries so that internal association is not affected.
+      def self.has_many(name, scope = nil, **options, &extension)
+        if _audit_log_associations && name.to_s != "audit_log_entries"
+          assoc_name = name.to_s
+          tracked = _audit_log_associations == true ||
+                    Array(_audit_log_associations).map(&:to_s).include?(assoc_name)
+          if tracked
+            add_cb    = ->(owner, rec) { owner.send(:record_audit_association_change, assoc_name, nil, { "id" => rec.id, "type" => rec.class.name }) }
+            remove_cb = ->(owner, rec) { owner.send(:record_audit_association_change, assoc_name, { "id" => rec.id, "type" => rec.class.name }, nil) }
+            options[:after_add]    = [*options[:after_add]]    + [add_cb]
+            options[:after_remove] = [*options[:after_remove]] + [remove_cb]
+          end
+        end
+        scope ? super(name, scope, **options, &extension) : super(name, **options, &extension)
+      end
     end
 
     class_methods do
-      def audit_log(only: nil, ignore: nil, meta: nil)
+      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil)
         self._audit_log_only   = only.map(&:to_s)   if only
         self._audit_log_ignore = ignore.map(&:to_s) if ignore
         self._audit_log_meta   = meta                if meta
+        self._audit_log_associations = associations  unless associations.nil?
       end
     end
 
@@ -44,6 +64,24 @@ module RailsAuditLog
       snapshot = attributes.dup if RailsAuditLog.store_snapshot
       changes = attributes.transform_values { |v| [v, nil] }
       record_audit_entry("destroy", changes, snapshot)
+    end
+
+    def record_audit_association_change(assoc_name, before, after)
+      return unless RailsAuditLog.enabled?
+
+      actor = RailsAuditLog.actor
+      meta  = build_audit_metadata
+      RailsAuditLog::AuditLogEntry.create!(
+        event:              "update",
+        item_type:          self.class.name,
+        item_id:            id,
+        object_changes:     { assoc_name => [before, after] },
+        reason:             RailsAuditLog.reason,
+        metadata:           meta.presence,
+        whodunnit_snapshot: actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
+        actor_type:         actor&.class&.name,
+        actor_id:           actor.respond_to?(:id) ? actor.id : nil
+      )
     end
 
     def record_audit_entry(event, changes, snapshot = nil)
