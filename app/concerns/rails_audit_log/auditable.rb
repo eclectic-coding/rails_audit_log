@@ -30,19 +30,21 @@ module RailsAuditLog
     private
 
     def record_audit_create
-      record_audit_entry("create", saved_changes)
+      record_audit_entry("create", saved_changes, nil)
     end
 
     def record_audit_update
-      record_audit_entry("update", saved_changes)
+      snapshot = attributes.merge(saved_changes.transform_values { |v| v[0] }) if RailsAuditLog.store_snapshot
+      record_audit_entry("update", saved_changes, snapshot)
     end
 
     def record_audit_destroy
+      snapshot = attributes.dup if RailsAuditLog.store_snapshot
       changes = attributes.transform_values { |v| [v, nil] }
-      record_audit_entry("destroy", changes)
+      record_audit_entry("destroy", changes, snapshot)
     end
 
-    def record_audit_entry(event, changes)
+    def record_audit_entry(event, changes, snapshot = nil)
       return unless RailsAuditLog.enabled?
 
       filtered = filter_changes(changes)
@@ -54,6 +56,7 @@ module RailsAuditLog
         item_type:      self.class.name,
         item_id:        id,
         object_changes: filtered,
+        object:         snapshot,
         actor_type:     actor&.class&.name,
         actor_id:       actor.respond_to?(:id) ? actor.id : nil
       )
