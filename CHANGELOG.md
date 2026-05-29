@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-29
+
 ### Added
 
 - `audit_log meta: { key: -> { value } }` — attach computed metadata to every entry for a model; lambdas are evaluated at write time; zero-arg lambdas (`-> { Current.tenant.id }`) and one-arg lambdas (`->(record) { record.title }`) are both supported; merged with request metadata when both are active
@@ -75,7 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.5.0
 [0.4.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.4.0
 [0.3.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.3.0
 [0.2.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.2.0
