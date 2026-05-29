@@ -17,6 +17,7 @@ module RailsAuditLog
     scope :destroyed_events, -> { where(event: "destroy") }
 
     # Deprecated short aliases kept for backwards compatibility
+
     scope :creates,  -> { created_events }
     scope :updates,  -> { updated_events }
     scope :destroys, -> { destroyed_events }
@@ -35,10 +36,12 @@ module RailsAuditLog
     scope :since, ->(time) { where(created_at: time..) }
     scope :until, ->(time) { where(created_at: ..time) }
 
-    # Attribute scope — uses json_extract (SQLite/MySQL) or json -> key (PostgreSQL)
+    # Attribute scope — uses json_extract (SQLite/MySQL) or json ? key (PostgreSQL)
     scope :touching, ->(attribute) {
       if connection.adapter_name =~ /PostgreSQL/i
+        # :nocov:
         where("object_changes ? :key", key: attribute.to_s)
+        # :nocov:
       else
         where("json_extract(object_changes, ?) IS NOT NULL", "$.#{attribute}")
       end
