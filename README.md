@@ -151,6 +151,24 @@ end
 
 `belongs_to` foreign-key changes are already tracked as regular column updates and require no extra configuration.
 
+### Capping history per record
+
+Limit how many audit entries are kept per record with `version_limit:`. Oldest entries are pruned automatically after each write once the cap is reached:
+
+```ruby
+class Post < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log version_limit: 10  # keep only the 10 most recent entries
+end
+```
+
+Set a global default in an initializer — per-model values take precedence:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.version_limit = 50
+```
+
 ### Selective tracking
 
 Track only specific attributes, or exclude noisy ones:

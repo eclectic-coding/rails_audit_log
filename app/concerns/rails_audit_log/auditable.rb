@@ -3,10 +3,11 @@ module RailsAuditLog
     extend ActiveSupport::Concern
 
     included do
-      class_attribute :_audit_log_only,         default: nil
-      class_attribute :_audit_log_ignore,        default: nil
-      class_attribute :_audit_log_meta,          default: nil
-      class_attribute :_audit_log_associations,  default: nil
+      class_attribute :_audit_log_only,          default: nil
+      class_attribute :_audit_log_ignore,         default: nil
+      class_attribute :_audit_log_meta,           default: nil
+      class_attribute :_audit_log_associations,   default: nil
+      class_attribute :_audit_log_version_limit,  default: nil
 
       has_many :audit_log_entries,
                class_name: "RailsAuditLog::AuditLogEntry",
@@ -50,11 +51,12 @@ module RailsAuditLog
     end
 
     class_methods do
-      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil)
-        self._audit_log_only   = only.map(&:to_s)   if only
-        self._audit_log_ignore = ignore.map(&:to_s) if ignore
-        self._audit_log_meta   = meta                if meta
-        self._audit_log_associations = associations  unless associations.nil?
+      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil)
+        self._audit_log_only          = only.map(&:to_s)   if only
+        self._audit_log_ignore        = ignore.map(&:to_s) if ignore
+        self._audit_log_meta          = meta                if meta
+        self._audit_log_associations  = associations        unless associations.nil?
+        self._audit_log_version_limit = version_limit       unless version_limit.nil?
       end
     end
 
@@ -95,6 +97,7 @@ module RailsAuditLog
         actor_type:         actor&.class&.name,
         actor_id:           actor.respond_to?(:id) ? actor.id : nil
       )
+      prune_audit_entries
     end
 
     def record_audit_entry(event, changes, snapshot = nil)
@@ -117,6 +120,18 @@ module RailsAuditLog
         actor_type:          actor&.class&.name,
         actor_id:            actor.respond_to?(:id) ? actor.id : nil
       )
+      prune_audit_entries
+    end
+
+    def prune_audit_entries
+      limit = self.class._audit_log_version_limit || RailsAuditLog.version_limit
+      return unless limit
+
+      count = audit_log_entries.count
+      excess = count - limit
+      return unless excess > 0
+
+      audit_log_entries.order(id: :asc).limit(excess).delete_all
     end
 
     def build_audit_metadata
