@@ -5,6 +5,7 @@ module RailsAuditLog
     included do
       class_attribute :_audit_log_only,   default: nil
       class_attribute :_audit_log_ignore, default: nil
+      class_attribute :_audit_log_meta,   default: nil
 
       has_many :audit_log_entries,
                class_name: "RailsAuditLog::AuditLogEntry",
@@ -17,9 +18,10 @@ module RailsAuditLog
     end
 
     class_methods do
-      def audit_log(only: nil, ignore: nil)
+      def audit_log(only: nil, ignore: nil, meta: nil)
         self._audit_log_only   = only.map(&:to_s)   if only
         self._audit_log_ignore = ignore.map(&:to_s) if ignore
+        self._audit_log_meta   = meta                if meta
       end
     end
 
@@ -51,7 +53,7 @@ module RailsAuditLog
       return if filtered.empty? && event == "update"
 
       actor = RailsAuditLog.actor
-      req_meta = RailsAuditLog.request_metadata
+      meta = build_audit_metadata
       RailsAuditLog::AuditLogEntry.create!(
         event:               event,
         item_type:           self.class.name,
@@ -59,11 +61,22 @@ module RailsAuditLog
         object_changes:      filtered,
         object:              snapshot,
         reason:              RailsAuditLog.reason,
-        metadata:            req_meta.presence,
+        metadata:            meta.presence,
         whodunnit_snapshot:  actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
         actor_type:          actor&.class&.name,
         actor_id:            actor.respond_to?(:id) ? actor.id : nil
       )
+    end
+
+    def build_audit_metadata
+      meta = {}
+      if self.class._audit_log_meta
+        self.class._audit_log_meta.each do |key, callable|
+          meta[key.to_s] = callable.arity == 0 ? callable.call : callable.call(self)
+        end
+      end
+      meta.merge!(RailsAuditLog.request_metadata || {})
+      meta
     end
 
     def filter_changes(changes)
