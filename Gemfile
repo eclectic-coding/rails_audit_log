@@ -7,6 +7,13 @@ gem "puma"
 
 gem "sqlite3"
 
+# Postgres adapter — used only in the postgres CI job.
+# Local devs without libpq can opt out:
+#   bundle config set --local without db_postgres
+group :db_postgres do
+  gem "pg", require: false
+end
+
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
 gem "rubocop-rails-omakase", require: false
 

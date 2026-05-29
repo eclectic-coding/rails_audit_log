@@ -53,7 +53,7 @@ jobs:
       - run: bundle exec bundle-audit check
 
   test:
-    name: Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
+    name: SQLite / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -76,6 +76,55 @@ jobs:
       - run: bundle exec rspec
         env:
           RAILS_VERSION: ${{ matrix.rails }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-postgres:
+    name: PostgreSQL / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["4.0"]
+        rails: ["7.2", "8.0", "8.1"]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+        env:
+          BUNDLE_WITH: db_postgres
+
+      - name: Create test database
+        run: bin/rails db:create RAILS_ENV=test
+        working-directory: spec/dummy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost/rails_audit_log_test
+
+      - run: bundle exec rspec
+        env:
+          RAILS_VERSION: ${{ matrix.rails }}
+          DATABASE_URL: postgresql://postgres:postgres@localhost/rails_audit_log_test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6

@@ -74,12 +74,10 @@ module RailsAuditLog
       object_changes.transform_values { |from_to| { from: from_to[0], to: from_to[1] } }
     end
 
-    # Attribute scope — uses json_extract (SQLite/MySQL) or json ? key (PostgreSQL)
+    # Attribute scope — uses json_extract (SQLite/MySQL) or ->> (PostgreSQL)
     scope :touching, ->(attribute) {
       if connection.adapter_name =~ /PostgreSQL/i
-        # :nocov:
-        where("object_changes ? :key", key: attribute.to_s)
-        # :nocov:
+        where("object_changes->>? IS NOT NULL", attribute.to_s)
       else
         where("json_extract(object_changes, ?) IS NOT NULL", "$.#{attribute}")
       end

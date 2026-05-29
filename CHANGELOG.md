@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- PostgreSQL CI job — tests the full suite against Postgres 16 (Ruby 4.0, all supported Rails versions) via `DATABASE_URL`; `pg` gem added to a `db_postgres` Bundler group so contributors without libpq can opt out with `bundle config set --local without db_postgres`
+
+### Changed
+
+- `.touching` scope uses `object_changes->>? IS NOT NULL` for PostgreSQL (works with `json` columns; the previous `?` operator required `jsonb`)
+- Existing SQLite test job renamed to clarify it runs SQLite only
+
+### Added
+
 - `AuditLogEntry#reify` — returns an unsaved ActiveRecord instance reflecting the record's state before the audit entry was created; returns `nil` for `create` events, restores pre-change attribute values for `update` events (merged with the current record's unchanged attributes), and reconstructs the pre-delete state for `destroy` events
 - `object` JSON column on `audit_log_entries` — stores the full pre-change attribute snapshot alongside `object_changes`; `reify` uses it directly when present, avoiding a database lookup
 - `RailsAuditLog.store_snapshot` config option (default: `true`) — set to `false` for diff-only mode to reduce storage; `reify` falls back to reconstructing state from `object_changes` when the snapshot is absent
