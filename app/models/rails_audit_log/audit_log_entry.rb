@@ -64,6 +64,14 @@ module RailsAuditLog
       instance
     end
 
+    def previous
+      self.class.where(item_type: item_type, item_id: item_id).where("id < ?", id).order(id: :desc).first
+    end
+
+    def next
+      self.class.where(item_type: item_type, item_id: item_id).where("id > ?", id).order(id: :asc).first
+    end
+
     def changed_attributes
       object_changes&.keys || []
     end
