@@ -10,11 +10,7 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Enough to record changes in a production app.
 
-- `has_audit_log` concern — opt-in on any ActiveRecord model via `include RailsAuditLog::Auditable`
-- Tracks `create`, `update`, and `destroy` callbacks automatically
-- `model_instance.audit_log_entries` association
 - `ApplicationController` concern (`RailsAuditLog::Controller`) to set the current actor via `audit_log_actor { current_user }` helper
-- Thread-local actor context so controller whodunnit flows safely into background jobs that are triggered inline
 - Engine properly isolated under `RailsAuditLog` namespace with Zeitwerk autoloading
 
 ---
