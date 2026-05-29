@@ -4,7 +4,7 @@ module RailsAuditLog
 
     EVENTS = %w[create update destroy].freeze
 
-    belongs_to :item, polymorphic: true
+    belongs_to :item, polymorphic: true, optional: true
     belongs_to :actor, polymorphic: true, optional: true
 
     validates :event, presence: true, inclusion: { in: EVENTS }
