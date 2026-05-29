@@ -12,12 +12,9 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Control which columns are audited.
 
-- `only: [:title, :status]` — audit only listed attributes
-- `ignore: [:updated_at, :cached_at]` — exclude listed attributes (default excludes `updated_at`)
 - `skip_audit_log` — method to temporarily disable tracking within a block
 - `RailsAuditLog.disable { ... }` — global disable for bulk operations
 - `RailsAuditLog.enabled?` — inspect current state
-- Configurable default ignored columns in an initializer
 
 ---
 
