@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Enough to record changes in a production app.
 
-- `ApplicationController` concern (`RailsAuditLog::Controller`) to set the current actor via `audit_log_actor { current_user }` helper
 - Engine properly isolated under `RailsAuditLog` namespace with Zeitwerk autoloading
 
 ---
