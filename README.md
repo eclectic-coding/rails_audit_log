@@ -1,4 +1,9 @@
 # RailsAuditLog
+
+[![Gem Version](https://badge.fury.io/rb/rails_audit_log.svg)](https://badge.fury.io/rb/rails_audit_log)
+[![Ruby](https://img.shields.io/badge/ruby-%3E%3D%203.3-ruby)](https://www.ruby-lang.org)
+[![codecov](https://codecov.io/gh/eclectic-coding/rails_audit_log/branch/main/graph/badge.svg)](https://codecov.io/gh/eclectic-coding/rails_audit_log)
+
 Short description and motivation.
 
 ## Usage
