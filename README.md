@@ -179,6 +179,68 @@ entry.previous  # => the entry before this one
 entry.next      # => the entry after this one (nil if last)
 ```
 
+### Attaching a reason
+
+Record a free-text rationale alongside any write using a thread-local block — safe to nest, cleared automatically:
+
+```ruby
+RailsAuditLog.audit_log_reason("Approved by legal") do
+  contract.update!(status: "approved")
+end
+
+entry.reason  # => "Approved by legal"
+```
+
+### Arbitrary metadata
+
+The `metadata` JSON column accepts any key/value hash. Populate it automatically with `audit_log meta:`:
+
+```ruby
+class Article < ApplicationRecord
+  include RailsAuditLog::Auditable
+
+  # Zero-arg lambda — evaluated at write time (good for thread-locals)
+  # One-arg lambda — receives the record instance
+  audit_log meta: {
+    tenant_id:    -> { Current.tenant.id },
+    title_length: ->(record) { record.title.length }
+  }
+end
+
+entry.metadata  # => { "tenant_id" => "acme", "title_length" => 12 }
+```
+
+### Request metadata capture
+
+Enable opt-in capture of `remote_ip` and `user_agent` from the current request in an initializer:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.capture_request_metadata = true
+```
+
+When enabled, the `Controller` concern automatically stores these into each entry's `metadata` column:
+
+```ruby
+entry.metadata  # => { "remote_ip" => "203.0.113.1", "user_agent" => "Mozilla/5.0 ..." }
+```
+
+Request metadata and `audit_log meta:` values are merged together automatically.
+
+### Actor display name snapshot
+
+`whodunnit_snapshot` stores the actor's display name at write time so entries remain meaningful even after the actor record is deleted:
+
+```ruby
+entry.whodunnit_snapshot  # => "Alice"  (even if the User record is later deleted)
+```
+
+The default display proc uses `actor.name` if available, otherwise `actor.to_s`. Override globally in an initializer:
+
+```ruby
+RailsAuditLog.whodunnit_display = ->(actor) { actor.email }
+```
+
 ### Object snapshot storage
 
 By default every entry stores a full `object` snapshot of the pre-change state alongside `object_changes`. This makes `reify` and `version_at` reliable without any database lookups:

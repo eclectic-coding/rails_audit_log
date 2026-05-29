@@ -6,13 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.5.0 — Rich context & metadata
-
-> Record more about the circumstances of each change.
-
-
----
-
 ## 0.6.0 — Association tracking
 
 > Capture changes to relationships, not just scalar attributes.
