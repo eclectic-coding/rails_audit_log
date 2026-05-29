@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Request metadata capture — when `RailsAuditLog.capture_request_metadata = true`, the `Controller` concern automatically stores `remote_ip` and `user_agent` from the current request into the entry's `metadata` column on every audited write
 - `AuditLogEntry#whodunnit_snapshot` — stores the actor's display name at write time; survives actor deletion; defaults to `actor.name` if available, otherwise `actor.to_s`
 - `RailsAuditLog.whodunnit_display` — configurable proc for deriving the snapshot value (e.g. `RailsAuditLog.whodunnit_display = ->(actor) { actor.email }`)
 - `AuditLogEntry#reason` — nullable string column for a free-text rationale attached at write time

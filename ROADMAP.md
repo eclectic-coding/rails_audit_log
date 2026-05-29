@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Record more about the circumstances of each change.
 
-- Request metadata capture: remote IP, user agent (opt-in via config)
 - Custom metadata: `has_audit_log meta: { tenant_id: -> { Current.tenant.id } }`
 
 ---
