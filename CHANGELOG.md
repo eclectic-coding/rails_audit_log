@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `AuditLogEntry#reason` — nullable string column for a free-text rationale attached at write time
+- `RailsAuditLog.audit_log_reason(value) { }` — thread-local helper that sets `reason` on all entries created inside the block; restores the previous value (or nil) on exit, even if the block raises
 - `AuditLogEntry#metadata` — nullable JSON column for arbitrary key/value storage; validated to be a Hash when present
 
 ## [0.4.0] - 2026-05-29
