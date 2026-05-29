@@ -1,6 +1,7 @@
 puts "Seeding dummy app..."
 
 RailsAuditLog::AuditLogEntry.delete_all
+Comment.delete_all if defined?(Comment)
 Post.delete_all
 User.delete_all
 Article.delete_all if defined?(Article)
@@ -72,8 +73,18 @@ t_after_v2 = entries.updated_events.first.created_at
 snapshot = RailsAuditLog.version_at(versioned, t_after_v2)
 puts "  version_at(after v2 update): title = #{snapshot.title.inspect}"
 
+# Demonstrate 0.6.0 — association tracking (Post has audit_log associations: true)
+puts "  Demonstrating association tracking..."
+RailsAuditLog.with_actor(alice) do
+  assoc_post = Post.create!(title: "Association Demo")
+  comment1   = assoc_post.comments.create!(body: "First comment — tracked as add")
+  comment2   = assoc_post.comments.create!(body: "Second comment — tracked as add")
+  assoc_post.comments.delete(comment1)  # tracked as remove
+end
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
+puts "  #{Comment.count} comments"
 puts "  #{Article.count} articles (only: [:title])"
 puts "  #{RailsAuditLog::AuditLogEntry.count} audit log entries"
 puts "Done."

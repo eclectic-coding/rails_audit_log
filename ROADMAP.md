@@ -10,10 +10,7 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Capture changes to relationships, not just scalar attributes.
 
-- `has_audit_log associations: true` — tracks `has_many` / `belongs_to` changes
 - Join-table support for `has_and_belongs_to_many` and `has_many :through`
-- Association change events stored as structured JSON in `object_changes`
-- Configurable per-association: `has_audit_log associations: [:tags, :category]`
 
 ---
 

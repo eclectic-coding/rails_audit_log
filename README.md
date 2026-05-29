@@ -102,6 +102,43 @@ entry.diff
 # => { "title" => { from: "Hello", to: "World" } }
 ```
 
+### Association tracking
+
+Track `has_many` add and remove events by passing `associations: true` to `audit_log`. Call `audit_log` **before** the `has_many` declarations so the callbacks are wired at class load time:
+
+```ruby
+class Post < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log associations: true
+  has_many :tags
+  has_many :comments, dependent: :destroy
+end
+```
+
+Each add or remove creates an `update` entry on the parent with the associated record's identity in `object_changes`:
+
+```ruby
+post = Post.create!(title: "Hello")
+tag  = post.tags.create!(name: "Ruby")
+
+entry = post.audit_log_entries.updated_events.last
+entry.object_changes
+# => { "tags" => [nil, { "id" => 1, "type" => "Tag" }] }
+
+post.tags.delete(tag)
+entry = post.audit_log_entries.updated_events.last
+entry.object_changes
+# => { "tags" => [{ "id" => 1, "type" => "Tag" }, nil] }
+```
+
+Track only a named subset of associations:
+
+```ruby
+audit_log associations: [:tags]  # comments changes are not recorded
+```
+
+`belongs_to` foreign-key changes are already tracked as regular column updates and require no extra configuration.
+
 ### Selective tracking
 
 Track only specific attributes, or exclude noisy ones:

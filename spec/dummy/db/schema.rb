@@ -35,4 +35,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
     t.string :status, default: "draft"
     t.timestamps
   end
+
+  create_table :comments, force: :cascade do |t|
+    t.text   :body
+    t.bigint :post_id, null: false
+    t.timestamps
+  end
+
+  add_index :comments, :post_id
 end
