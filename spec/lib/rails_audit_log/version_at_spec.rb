@@ -60,4 +60,13 @@ RSpec.describe "RailsAuditLog.version_at" do
     result = RailsAuditLog.version_at(post, t_create)
     expect(result.id).to eq(post.id)
   end
+
+  it "does not raise when the last entry is an association-change (no scalar columns)" do
+    entry = RailsAuditLog::AuditLogEntry.create!(
+      event: "update", item_type: "Post", item_id: post.id,
+      object_changes: { "tags" => [nil, { "id" => 99, "type" => "Tag" }] },
+      created_at: 1.hour.from_now
+    )
+    expect { RailsAuditLog.version_at(post, entry.created_at) }.not_to raise_error
+  end
 end

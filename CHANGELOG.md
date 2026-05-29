@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `has_many :through` join-table association changes are tracked automatically via the same `audit_log associations:` option — no extra configuration required
 - `has_and_belongs_to_many` add/remove events are tracked; `object_changes` uses the same `[nil, {"id" => X, "type" => "ClassName"}]` / `[{...}, nil]` format as direct `has_many`
 
+### Fixed
+
+- `AuditLogEntry#reify` no longer raises `ActiveRecord::AssociationTypeMismatch` when called on an association-change entry; non-column keys in `object_changes` (e.g. `"tags"`, `"comments"`) are now filtered out before attributes are assigned to the reconstructed instance
+- `RailsAuditLog.version_at` applies the same column-name filter so it does not raise when the nearest audit entry before the requested time is an association-change entry
+
 ## [0.5.0] - 2026-05-29
 
 ### Added

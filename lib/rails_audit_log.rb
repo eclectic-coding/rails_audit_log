@@ -73,7 +73,10 @@ module RailsAuditLog
     return nil if entry.nil? || entry.event == "destroy"
 
     klass = record.class
-    to_attrs = (entry.object_changes || {}).transform_values { |v| v[1] }
+    column_names = klass.column_names.map(&:to_s)
+    to_attrs = (entry.object_changes || {})
+      .select { |k, _| column_names.include?(k) }
+      .transform_values { |v| v[1] }
     attrs = entry.object.present? ? entry.object.merge(to_attrs) : to_attrs
 
     instance = klass.new
