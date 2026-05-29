@@ -20,6 +20,9 @@
   .diff-from { color: #991b1b; text-decoration: line-through; margin-right: 6px; }
   .diff-to   { color: #166534; }
   .muted { color: #aaa; font-style: italic; }
+  .snapshot-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a3e635; title: "snapshot stored"; }
+  .reify-box { margin-top: 6px; padding: 4px 8px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-family: monospace; color: #0369a1; }
+  .nav-links { font-size: 11px; color: #888; margin-top: 4px; }
 </style>
 
 <div class="page-header">
@@ -53,13 +56,20 @@
       <th>Item</th>
       <th>Actor</th>
       <th>Diff</th>
+      <th>Reify (pre-change state)</th>
+      <th>Nav</th>
       <th>When</th>
     </tr>
   </thead>
   <tbody>
     <% @entries.each do |entry| %>
       <tr>
-        <td><span class="badge badge-<%= entry.event %>"><%= entry.event %></span></td>
+        <td>
+          <span class="badge badge-<%= entry.event %>"><%= entry.event %></span>
+          <% if entry.object.present? %>
+            <span class="snapshot-dot" title="full snapshot stored"></span>
+          <% end %>
+        </td>
         <td><%= entry.item_type %> #<%= entry.item_id %></td>
         <td>
           <% if entry.actor %>
@@ -84,6 +94,24 @@
           <% else %>
             <span class="muted">—</span>
           <% end %>
+        </td>
+        <td>
+          <% prior = entry.reify %>
+          <% if prior %>
+            <div class="reify-box">
+              <% prior.attributes.except("id", "created_at", "updated_at").each do |k, v| %>
+                <div><%= k %>: <%= v.inspect %></div>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="muted">—</span>
+          <% end %>
+        </td>
+        <td class="nav-links">
+          <% if entry.previous %>← #<%= entry.previous.id %><% end %>
+          <% if entry.previous && entry.next %> · <% end %>
+          <% if entry.next %>#<%= entry.next.id %> →<% end %>
+          <% unless entry.previous || entry.next %><span class="muted">—</span><% end %>
         </td>
         <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
       </tr>

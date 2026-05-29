@@ -6,12 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.4.0 — Object reconstruction (reification)
-
-> Rebuild what a record looked like at any point in time.
-
-- `RailsAuditLog.version_at(record, time)` — convenience method to reify a record at an arbitrary timestamp
-
 ---
 
 ## 0.5.0 — Rich context & metadata
