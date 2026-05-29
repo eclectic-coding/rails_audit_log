@@ -8,12 +8,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 
 
-## 0.3.0 — Selective tracking
-
-> Control which columns are audited.
-
-
----
 
 ## 0.4.0 — Object reconstruction (reification)
 
