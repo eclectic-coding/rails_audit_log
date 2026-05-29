@@ -23,6 +23,7 @@
   .snapshot-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a3e635; title: "snapshot stored"; }
   .reify-box { margin-top: 6px; padding: 4px 8px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-family: monospace; color: #0369a1; }
   .nav-links { font-size: 11px; color: #888; margin-top: 4px; }
+  .reason-tag { display: inline-block; padding: 2px 8px; background: #fef9c3; border: 1px solid #fde047; border-radius: 4px; font-size: 11px; color: #713f12; }
 </style>
 
 <div class="page-header">
@@ -56,6 +57,7 @@
       <th>Item</th>
       <th>Actor</th>
       <th>Diff</th>
+      <th>Reason</th>
       <th>Reify (pre-change state)</th>
       <th>Nav</th>
       <th>When</th>
@@ -91,6 +93,13 @@
                 <span class="diff-to"><%= change[:to].inspect %></span>
               </div>
             <% end %>
+          <% else %>
+            <span class="muted">—</span>
+          <% end %>
+        </td>
+        <td>
+          <% if entry.reason.present? %>
+            <span class="reason-tag"><%= entry.reason %></span>
           <% else %>
             <span class="muted">—</span>
           <% end %>

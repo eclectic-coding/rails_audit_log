@@ -44,6 +44,17 @@ end
 post = Post.first
 post.skip_audit_log { post.update!(body: "Silent body change.") }
 
+# Demonstrate 0.5.0 — reason field
+RailsAuditLog.with_actor(admin) do
+  approved = Post.create!(title: "Policy Update", body: "Draft policy.")
+  RailsAuditLog.audit_log_reason("Approved by legal") do
+    approved.update!(title: "Policy Update (approved)", body: "Final policy.")
+  end
+  RailsAuditLog.audit_log_reason("Reverted per CEO request") do
+    approved.update!(title: "Policy Update", body: "Draft policy.")
+  end
+end
+
 # Demonstrate 0.4.0 — reify and version chain navigation
 puts "  Demonstrating reify and version_at..."
 versioned = RailsAuditLog.with_actor(alice) do
