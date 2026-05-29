@@ -52,14 +52,15 @@ module RailsAuditLog
 
       actor = RailsAuditLog.actor
       RailsAuditLog::AuditLogEntry.create!(
-        event:          event,
-        item_type:      self.class.name,
-        item_id:        id,
-        object_changes: filtered,
-        object:         snapshot,
-        reason:         RailsAuditLog.reason,
-        actor_type:     actor&.class&.name,
-        actor_id:       actor.respond_to?(:id) ? actor.id : nil
+        event:               event,
+        item_type:           self.class.name,
+        item_id:             id,
+        object_changes:      filtered,
+        object:              snapshot,
+        reason:              RailsAuditLog.reason,
+        whodunnit_snapshot:  actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
+        actor_type:          actor&.class&.name,
+        actor_id:            actor.respond_to?(:id) ? actor.id : nil
       )
     end
 

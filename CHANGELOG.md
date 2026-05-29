@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `AuditLogEntry#whodunnit_snapshot` — stores the actor's display name at write time; survives actor deletion; defaults to `actor.name` if available, otherwise `actor.to_s`
+- `RailsAuditLog.whodunnit_display` — configurable proc for deriving the snapshot value (e.g. `RailsAuditLog.whodunnit_display = ->(actor) { actor.email }`)
 - `AuditLogEntry#reason` — nullable string column for a free-text rationale attached at write time
 - `RailsAuditLog.audit_log_reason(value) { }` — thread-local helper that sets `reason` on all entries created inside the block; restores the previous value (or nil) on exit, even if the block raises
 - `AuditLogEntry#metadata` — nullable JSON column for arbitrary key/value storage; validated to be a Hash when present

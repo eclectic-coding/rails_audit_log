@@ -7,6 +7,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
     t.json    :object
     t.json    :metadata
     t.string  :reason
+    t.string  :whodunnit_snapshot
     t.string  :actor_type
     t.bigint  :actor_id
     t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
