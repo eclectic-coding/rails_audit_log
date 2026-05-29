@@ -1,6 +1,7 @@
 require "rails_audit_log/version"
 require "rails_audit_log/engine"
 require "rails_audit_log/auditable"
+require "rails_audit_log/controller"
 
 module RailsAuditLog
   def self.actor
