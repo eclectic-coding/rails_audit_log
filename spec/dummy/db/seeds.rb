@@ -1,6 +1,8 @@
 puts "Seeding dummy app..."
 
 RailsAuditLog::AuditLogEntry.delete_all
+Tagging.delete_all if defined?(Tagging)
+Tag.delete_all if defined?(Tag)
 Comment.delete_all if defined?(Comment)
 Post.delete_all
 User.delete_all
@@ -75,15 +77,24 @@ puts "  version_at(after v2 update): title = #{snapshot.title.inspect}"
 
 # Demonstrate 0.6.0 — association tracking (Post has audit_log associations: true)
 puts "  Demonstrating association tracking..."
+ruby_tag  = Tag.create!(name: "Ruby")
+rails_tag = Tag.create!(name: "Rails")
+
 RailsAuditLog.with_actor(alice) do
   assoc_post = Post.create!(title: "Association Demo")
   comment1   = assoc_post.comments.create!(body: "First comment — tracked as add")
-  comment2   = assoc_post.comments.create!(body: "Second comment — tracked as add")
+  _comment2  = assoc_post.comments.create!(body: "Second comment — tracked as add")
   assoc_post.comments.delete(comment1)  # tracked as remove
+
+  # HABTM tracking (has_and_belongs_to_many :tags, join_table: :post_tags)
+  assoc_post.tags << ruby_tag   # tracked as add
+  assoc_post.tags << rails_tag  # tracked as add
+  assoc_post.tags.delete(ruby_tag)  # tracked as remove
 end
 
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
+puts "  #{Tag.count} tags"
 puts "  #{Comment.count} comments"
 puts "  #{Article.count} articles (only: [:title])"
 puts "  #{RailsAuditLog::AuditLogEntry.count} audit log entries"

@@ -137,6 +137,18 @@ Track only a named subset of associations:
 audit_log associations: [:tags]  # comments changes are not recorded
 ```
 
+`has_many :through` and `has_and_belongs_to_many` work the same way — no extra configuration:
+
+```ruby
+class Post < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log associations: true
+  has_many :taggings
+  has_many :tags, through: :taggings   # tracked automatically
+  has_and_belongs_to_many :categories  # tracked automatically
+end
+```
+
 `belongs_to` foreign-key changes are already tracked as regular column updates and require no extra configuration.
 
 ### Selective tracking
