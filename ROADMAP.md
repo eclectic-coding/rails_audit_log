@@ -6,8 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
----
-
 ## 0.5.0 — Rich context & metadata
 
 > Record more about the circumstances of each change.
