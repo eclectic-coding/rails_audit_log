@@ -2,8 +2,8 @@
 comment:
   layout: "reach, diff, flags, files"
   behavior: default
-  # Only post or update the comment if the coverage drops
-  require_changes: "coverage_drop"
+  # Only post or update the comment if coverage actually changes
+  require_changes: true
 
 # Configure Commit Status Checks (the green checkmark/red X list)
 coverage:
