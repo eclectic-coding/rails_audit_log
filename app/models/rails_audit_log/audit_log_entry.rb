@@ -51,8 +51,13 @@ module RailsAuditLog
         return instance
       end
 
-      # Fallback: diff-only mode or entries recorded before snapshot support
-      from_attrs = (object_changes || {}).transform_values { |from_to| from_to[0] }
+      # Fallback: diff-only mode or entries recorded before snapshot support.
+      # Filter to column names so association-change entries (e.g. tags, comments)
+      # don't get assigned to the record as if they were scalar attributes.
+      column_names = klass.column_names.map(&:to_s)
+      from_attrs = (object_changes || {})
+        .select { |k, _| column_names.include?(k) }
+        .transform_values { |from_to| from_to[0] }
 
       if event == "update"
         record = klass.find_by(id: item_id)

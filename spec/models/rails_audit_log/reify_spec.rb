@@ -69,5 +69,28 @@ RSpec.describe RailsAuditLog::AuditLogEntry, "#reify" do
                                   object_changes: { "id" => [1, nil] })
       expect { entry.reify }.to raise_error(NameError)
     end
+
+    it "falls back to object_changes when no snapshot is stored (diff-only mode)" do
+      entry = described_class.create!(
+        event: "update", item_type: "Post", item_id: post.id,
+        object_changes: { "title" => ["Original", "Updated"] },
+        object: nil
+      )
+      result = entry.reify
+      expect(result).to be_a(Post)
+      expect(result.title).to eq("Original")
+    end
+
+    it "ignores association-change keys so reify does not raise AssociationTypeMismatch" do
+      # Simulates an entry written by record_audit_association_change (has_many/HABTM add/remove)
+      entry = described_class.create!(
+        event: "update", item_type: "Post", item_id: post.id,
+        object_changes: { "tags" => [{ "id" => 99, "type" => "Tag" }, nil] }
+      )
+      expect { entry.reify }.not_to raise_error
+      result = entry.reify
+      expect(result).to be_a(Post)
+      expect(result.title).to eq(post.title)
+    end
   end
 end
