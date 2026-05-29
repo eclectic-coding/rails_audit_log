@@ -38,6 +38,23 @@ module RailsAuditLog
 
     # Instance methods
 
+    def reify
+      return nil if event == "create"
+
+      klass = item_type.constantize
+      from_attrs = (object_changes || {}).transform_values { |from_to| from_to[0] }
+
+      if event == "update"
+        record = klass.find_by(id: item_id)
+        from_attrs = record.attributes.merge(from_attrs) if record
+      end
+
+      instance = klass.new
+      instance.assign_attributes(from_attrs.except("id"))
+      instance.id = from_attrs.fetch("id") { item_id }
+      instance
+    end
+
     def changed_attributes
       object_changes&.keys || []
     end
