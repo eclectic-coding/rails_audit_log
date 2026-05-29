@@ -6,11 +6,9 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.1.0 — Core tracking (MVP)
+## 0.1.0 — Core tracking (MVP) ✓
 
-> Enough to record changes in a production app.
-
-- Engine properly isolated under `RailsAuditLog` namespace with Zeitwerk autoloading
+> Shipped. See CHANGELOG for details.
 
 ---
 

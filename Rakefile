@@ -9,7 +9,12 @@ Bundler::Audit::Task.new
 RuboCop::RakeTask.new
 RSpec::Core::RakeTask.new(:spec)
 
-task default: ["bundle:audit:update", "bundle:audit:check", :rubocop, :spec]
+desc "Verify Zeitwerk can eager-load all engine files without errors"
+task :zeitwerk do
+  sh({ "RAILS_ENV" => "test" }, "cd spec/dummy && bundle exec rails runner 'Rails.autoloaders.main.eager_load'")
+end
+
+task default: ["bundle:audit:update", "bundle:audit:check", :rubocop, :zeitwerk, :spec]
 
 # Development database tasks (operate on spec/dummy)
 namespace :dev do

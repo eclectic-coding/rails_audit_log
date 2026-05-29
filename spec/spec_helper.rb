@@ -15,6 +15,7 @@ SimpleCov.start "rails" do
   add_filter "/app/jobs/rails_audit_log/application_job.rb"
 
   add_group "Models",      "app/models"
+  add_group "Concerns",    "app/concerns"
   add_group "Controllers", "app/controllers"
   add_group "Helpers",     "app/helpers"
   add_group "Views",       "app/views"
