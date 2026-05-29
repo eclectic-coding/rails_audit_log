@@ -6,7 +6,7 @@ AllCops:
     - "bin/release"
     - "README.md"
     - "spec/dummy/config/database.yml"
-    - "spec/dummy/db/seeds.rb"
+    - "spec/dummy/db/**/*"
     - "lib/generators/**/templates/**/*"
 
 Layout/SpaceInsideArrayLiteralBrackets:
