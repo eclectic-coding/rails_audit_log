@@ -3,11 +3,13 @@ puts "Seeding dummy app..."
 RailsAuditLog::AuditLogEntry.delete_all
 Post.delete_all
 User.delete_all
+Article.delete_all if defined?(Article)
 
 alice = User.create!(name: "Alice")
 bob   = User.create!(name: "Bob")
 admin = User.create!(name: "Admin")
 
+# Posts track all attributes (minus updated_at by default)
 RailsAuditLog.with_actor(alice) do
   post1 = Post.create!(title: "Hello World", body: "First post body.")
   Post.create!(title: "Getting Started", body: "A beginner's guide.")
@@ -26,7 +28,15 @@ end
 
 Post.create!(title: "Anonymous Post", body: "No actor context.")
 
+# Articles use `audit_log only: [:title]` — body and status changes are silent
+RailsAuditLog.with_actor(alice) do
+  article = Article.create!(title: "My Article", body: "Body not tracked.", status: "draft")
+  article.update!(body: "Updated body — no audit entry created.")
+  article.update!(title: "My Article (revised)", status: "published")
+end
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
+puts "  #{Article.count} articles (only: [:title])"
 puts "  #{RailsAuditLog::AuditLogEntry.count} audit log entries"
 puts "Done."

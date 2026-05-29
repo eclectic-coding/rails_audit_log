@@ -24,4 +24,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
     t.string :name
     t.timestamps
   end
+
+  create_table :articles, force: :cascade do |t|
+    t.string :title, null: false
+    t.text   :body
+    t.string :status, default: "draft"
+    t.timestamps
+  end
 end

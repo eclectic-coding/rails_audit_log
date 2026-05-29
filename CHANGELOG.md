@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `audit_log only: [:attr]` — track only the listed attributes on a model
+- `audit_log ignore: [:attr]` — exclude listed attributes from tracking on a model
+- `RailsAuditLog.ignored_attributes` — global default ignored columns (default: `["updated_at"]`); configure in an initializer
+- Updates that result in no tracked changes after filtering are silently skipped
+
 ## [0.2.0] - 2026-05-29
 
 ### Added
