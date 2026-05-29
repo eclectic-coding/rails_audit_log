@@ -36,6 +36,18 @@ module RailsAuditLog
     scope :since, ->(time) { where(created_at: time..) }
     scope :until, ->(time) { where(created_at: ..time) }
 
+    # Instance methods
+
+    def changed_attributes
+      object_changes&.keys || []
+    end
+
+    def diff
+      return {} unless object_changes
+
+      object_changes.transform_values { |from_to| { from: from_to[0], to: from_to[1] } }
+    end
+
     # Attribute scope — uses json_extract (SQLite/MySQL) or json ? key (PostgreSQL)
     scope :touching, ->(attribute) {
       if connection.adapter_name =~ /PostgreSQL/i

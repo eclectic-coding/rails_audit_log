@@ -11,9 +11,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > A chainable, readable interface for querying the audit trail.
 
-- `AuditLogEntry#changed_attributes` — returns the list of attribute names that changed
-- `AuditLogEntry#diff` — returns `{ attr => [from, to] }` hash for updates
-- `AuditLogEntry#actor` — polymorphic association to the whodunnit object
 
 ---
 
