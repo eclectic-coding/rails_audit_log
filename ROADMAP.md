@@ -12,7 +12,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 - Request metadata capture: remote IP, user agent (opt-in via config)
 - Custom metadata: `has_audit_log meta: { tenant_id: -> { Current.tenant.id } }`
-- `reason` field — free-text rationale attached at write time via `audit_log_reason "Approved by legal"` thread-local helper
 - `AuditLogEntry#whodunnit_snapshot` — stores actor's display name at write time (survives actor deletion)
 
 ---

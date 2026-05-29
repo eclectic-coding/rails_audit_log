@@ -57,6 +57,7 @@ module RailsAuditLog
         item_id:        id,
         object_changes: filtered,
         object:         snapshot,
+        reason:         RailsAuditLog.reason,
         actor_type:     actor&.class&.name,
         actor_id:       actor.respond_to?(:id) ? actor.id : nil
       )

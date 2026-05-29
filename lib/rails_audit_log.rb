@@ -35,6 +35,22 @@ module RailsAuditLog
     Thread.current[:rails_audit_log_disabled] = previous
   end
 
+  def self.reason
+    Thread.current[:rails_audit_log_reason]
+  end
+
+  def self.reason=(value)
+    Thread.current[:rails_audit_log_reason] = value
+  end
+
+  def self.audit_log_reason(value)
+    previous = self.reason
+    self.reason = value
+    yield
+  ensure
+    self.reason = previous
+  end
+
   def self.version_at(record, time)
     entry = AuditLogEntry
       .where(item_type: record.class.name, item_id: record.id)

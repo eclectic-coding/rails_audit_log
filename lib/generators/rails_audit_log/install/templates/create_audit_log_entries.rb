@@ -7,6 +7,7 @@ class CreateAuditLogEntries < ActiveRecord::Migration[<%= ActiveRecord::Migratio
       t.json    :object_changes
       t.json    :object
       t.json    :metadata
+      t.string  :reason
       t.string  :actor_type
       t.bigint  :actor_id
       t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
