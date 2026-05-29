@@ -42,6 +42,15 @@ module RailsAuditLog
       return nil if event == "create"
 
       klass = item_type.constantize
+
+      if object.present?
+        instance = klass.new
+        instance.assign_attributes(object.except("id"))
+        instance.id = object.fetch("id") { item_id }
+        return instance
+      end
+
+      # Fallback: diff-only mode or entries recorded before snapshot support
       from_attrs = (object_changes || {}).transform_values { |from_to| from_to[0] }
 
       if event == "update"

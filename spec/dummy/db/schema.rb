@@ -4,6 +4,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
     t.string  :item_type,   null: false
     t.bigint  :item_id,     null: false
     t.json    :object_changes
+    t.json    :object
     t.string  :actor_type
     t.bigint  :actor_id
     t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
