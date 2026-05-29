@@ -14,7 +14,11 @@
   .badge-create  { background: #dcfce7; color: #166534; }
   .badge-update  { background: #dbeafe; color: #1e40af; }
   .badge-destroy { background: #fee2e2; color: #991b1b; }
-  .changes { font-family: monospace; font-size: 12px; color: #444; max-width: 340px; white-space: pre-wrap; word-break: break-all; }
+  .attrs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .attr-tag { background: #f3f4f6; border-radius: 4px; padding: 1px 6px; font-size: 11px; font-family: monospace; color: #374151; }
+  .diff-row { font-size: 12px; font-family: monospace; margin-bottom: 3px; }
+  .diff-from { color: #991b1b; text-decoration: line-through; margin-right: 6px; }
+  .diff-to   { color: #166534; }
   .muted { color: #aaa; font-style: italic; }
 </style>
 
@@ -48,7 +52,7 @@
       <th>Event</th>
       <th>Item</th>
       <th>Actor</th>
-      <th>Changes</th>
+      <th>Diff</th>
       <th>When</th>
     </tr>
   </thead>
@@ -58,15 +62,25 @@
         <td><span class="badge badge-<%= entry.event %>"><%= entry.event %></span></td>
         <td><%= entry.item_type %> #<%= entry.item_id %></td>
         <td>
-          <% if entry.actor_type %>
+          <% if entry.actor %>
             <%= entry.actor_type %> #<%= entry.actor_id %>
           <% else %>
             <span class="muted">anonymous</span>
           <% end %>
         </td>
         <td>
-          <% if entry.object_changes.present? %>
-            <div class="changes"><%= JSON.pretty_generate(entry.object_changes) %></div>
+          <% if entry.changed_attributes.any? %>
+            <div class="attrs">
+              <% entry.changed_attributes.each do |attr| %>
+                <span class="attr-tag"><%= attr %></span>
+              <% end %>
+            </div>
+            <% entry.diff.each do |attr, change| %>
+              <div class="diff-row">
+                <span class="diff-from"><%= change[:from].inspect %></span>
+                <span class="diff-to"><%= change[:to].inspect %></span>
+              </div>
+            <% end %>
           <% else %>
             <span class="muted">—</span>
           <% end %>
