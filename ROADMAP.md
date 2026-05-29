@@ -11,12 +11,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > A chainable, readable interface for querying the audit trail.
 
-- Scopes on `AuditLogEntry`:
-  - `.created_events`, `.updated_events`, `.destroyed_events`
-  - `.by_actor(actor)` — filter by actor polymorphically
-  - `.for_resource(record_or_class)` — filter by tracked object or its class
-  - `.since(time)` / `.until(time)` — time-bounded queries
-  - `.touching(attribute)` — entries that changed a specific column
 - `AuditLogEntry#changed_attributes` — returns the list of attribute names that changed
 - `AuditLogEntry#diff` — returns `{ attr => [from, to] }` hash for updates
 - `AuditLogEntry#actor` — polymorphic association to the whodunnit object
