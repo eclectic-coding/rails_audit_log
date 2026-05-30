@@ -12,12 +12,12 @@ SimpleCov.start "rails" do
   add_filter "/lib/generators/"
   add_filter "/app/controllers/rails_audit_log/application_controller.rb"
   add_filter "/app/helpers/rails_audit_log/application_helper.rb"
-  add_filter "/app/jobs/rails_audit_log/application_job.rb"
 
   add_group "Models",      "app/models"
   add_group "Concerns",    "app/concerns"
   add_group "Controllers", "app/controllers"
   add_group "Helpers",     "app/helpers"
+  add_group "Jobs",        "app/jobs"
   add_group "Views",       "app/views"
   add_group "Library",     "lib"
 end
