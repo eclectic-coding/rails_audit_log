@@ -31,6 +31,9 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  require "rails_audit_log/matchers"
+  config.include RailsAuditLog::Matchers
+
   config.shared_context_metadata_behavior = :apply_to_host_groups
   config.filter_run_when_matching :focus
   config.disable_monkey_patching!

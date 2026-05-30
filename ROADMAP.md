@@ -10,9 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Testing and onboarding quality of life.
 
-- RSpec matchers:
-  - `expect(post).to have_audit_log_entry(:update).touching(:title)`
-  - `expect { action }.to create_audit_log_entry(event: :create)`
 - Test helper: `without_audit_log { ... }` to silence tracking in factories/seeds
 - Minitest assertions: `assert_audit_log_entry`
 - Rails generator for initializer: `bin/rails generate rails_audit_log:initializer`
