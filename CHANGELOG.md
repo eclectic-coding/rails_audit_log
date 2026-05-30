@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Mountable web dashboard at a configurable path via `mount RailsAuditLog::Engine, at: "/audit"`; engine routes define a root and `audit_log_entries` index and show endpoints
+- Asset delivery via propshaft, importmaps, and CDN-pinned `@hotwired/turbo` and `@hotwired/stimulus`; no inline style injection, no host app asset pipeline conflict
+- `turbo-rails` and `importmap-rails` added as gem dependencies
+
 ## [0.8.0] - 2026-05-30
 
 ### Added
