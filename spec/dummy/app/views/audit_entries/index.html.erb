@@ -48,6 +48,10 @@
     <div class="stat-value"><%= RailsAuditLog::AuditLogEntry.destroyed_events.count %></div>
     <div class="stat-label">Destroys</div>
   </div>
+  <div class="stat">
+    <div class="stat-value"><%= RailsAuditLog::AuditLogEntry.slim.count(:id) %></div>
+    <div class="stat-label">Slim count</div>
+  </div>
 </div>
 
 <table>
@@ -125,6 +129,44 @@
           <% if entry.next %>#<%= entry.next.id %> →<% end %>
           <% unless entry.previous || entry.next %><span class="muted">—</span><% end %>
         </td>
+        <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="page-header" style="margin-top: 32px;">
+  <h2>Slim entries (no blob columns)</h2>
+  <p>Last 10 entries loaded with <code>AuditLogEntry.slim</code> — object_changes, object, and metadata are not fetched</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Event</th>
+      <th>Item</th>
+      <th>Actor</th>
+      <th>Whodunnit</th>
+      <th>Reason</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @slim_entries.each do |entry| %>
+      <tr>
+        <td><%= entry.id %></td>
+        <td><span class="badge badge-<%= entry.event %>"><%= entry.event %></span></td>
+        <td><%= entry.item_type %> #<%= entry.item_id %></td>
+        <td>
+          <% if entry.actor_type.present? %>
+            <%= entry.actor_type %> #<%= entry.actor_id %>
+          <% else %>
+            <span class="muted">anonymous</span>
+          <% end %>
+        </td>
+        <td><%= entry.whodunnit_snapshot.presence || '<span class="muted">—</span>'.html_safe %></td>
+        <td><%= entry.reason.presence || '<span class="muted">—</span>'.html_safe %></td>
         <td><%= entry.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
       </tr>
     <% end %>

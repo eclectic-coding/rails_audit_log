@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `audit_log async: true` — enqueues audit writes via `RailsAuditLog::WriteAuditLogJob` (an `ActiveJob::Base` subclass) instead of writing inline; entry creation and version pruning both happen inside the job
 - `RailsAuditLog.async = true` — global default that enables async writes for all audited models; per-model `async: true` takes precedence over the default
 - `RailsAuditLog.batch_audit { }` — buffers all audit writes inside the block and flushes them with a single `insert_all!` call at the end, eliminating N+1 inserts during bulk imports; nested calls accumulate into the outermost batch; if the block raises, the buffer is discarded and no entries are written
+- `AuditLogEntry.slim` scope — selects all columns except the three JSON blob columns (`object_changes`, `object`, `metadata`); use for index or listing queries where blob data is not needed to reduce I/O and memory usage
 
 ## [0.6.0] - 2026-05-29
 

@@ -102,6 +102,19 @@ entry.diff
 # => { "title" => { from: "Hello", to: "World" } }
 ```
 
+### Lightweight queries
+
+Use `.slim` to exclude the three JSON blob columns (`object_changes`, `object`, `metadata`) from the SQL projection. This is useful for index or listing views where you only need the entry header (who, what event, when):
+
+```ruby
+entries = AuditLogEntry.slim.for_resource(article).since(1.week.ago)
+entries.first.event          # => "update"
+entries.first.actor_type     # => "User"
+entries.first.object_changes # => raises ActiveModel::MissingAttributeError
+```
+
+> **Note:** Use `.count(:id)` instead of `.count` when chaining `.slim` with other scopes — Rails' `COUNT` with a multi-column `SELECT` is not supported by all databases.
+
 ### Association tracking
 
 Track `has_many` add and remove events by passing `associations: true` to `audit_log`. Call `audit_log` **before** the `has_many` declarations so the callbacks are wired at class load time:
