@@ -21,7 +21,7 @@
             <% if entry.reason.present? %>
               <span class="ral-reason">"<%= entry.reason %>"</span>
             <% end %>
-            <%= link_to "Details →", audit_log_entry_path(entry), class: "ral-link ral-timeline__detail-link" %>
+            <%= link_to "Details →", audit_log_entry_path(entry), class: "ral-link ral-timeline__detail-link", data: { turbo_frame: "_top" } %>
           </div>
           <%= render "diff", entry: entry %>
         </div>
