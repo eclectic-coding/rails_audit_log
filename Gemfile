@@ -4,6 +4,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "puma"
+gem "propshaft"
 
 gem "sqlite3"
 

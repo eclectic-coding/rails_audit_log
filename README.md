@@ -31,6 +31,16 @@ bin/rails generate rails_audit_log:initializer
 
 This creates `config/initializers/rails_audit_log.rb` with all settings documented as commented examples inside a `RailsAuditLog.configure` block.
 
+## Web dashboard
+
+Mount the engine in `config/routes.rb` to enable the built-in audit trail browser:
+
+```ruby
+mount RailsAuditLog::Engine, at: "/audit"
+```
+
+Then visit `/audit` to browse all audit entries. The dashboard is delivered via propshaft, importmaps, and CDN-pinned Turbo and Stimulus — no asset pipeline configuration required in the host app.
+
 ## Usage
 
 ### Tracking a model

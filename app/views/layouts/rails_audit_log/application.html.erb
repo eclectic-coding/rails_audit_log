@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Rails audit log</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audit Log</title>
+  <link rel="icon" href="data:,">
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
-
-  <%= yield :head %>
-
-  <%= stylesheet_link_tag    "rails_audit_log/application", media: "all" %>
+  <%= stylesheet_link_tag "rails_audit_log/application", media: "all" %>
+  <%= javascript_importmap_tags "rails_audit_log" %>
 </head>
 <body>
-
-<%= yield %>
-
+  <%= yield %>
 </body>
 </html>

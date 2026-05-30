@@ -24,4 +24,6 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", ">= 7.2"
+  spec.add_dependency "turbo-rails", ">= 2.0"
+  spec.add_dependency "importmap-rails", ">= 1.2"
 end
