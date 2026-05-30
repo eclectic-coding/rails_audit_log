@@ -4,8 +4,6 @@ module RailsAuditLog
       set_filters
       @pagy, @entries = pagy(filtered_scope)
       @item_types     = AuditLogEntry.distinct.order(:item_type).pluck(:item_type)
-      @event_options  = AuditLogEntry::EVENTS
-      @period_options = AuditLogEntry::PERIODS.keys
     end
 
     def show
