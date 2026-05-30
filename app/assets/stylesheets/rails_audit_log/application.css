@@ -119,26 +119,49 @@ body {
 /* Timestamp */
 .ral-timestamp { color: #666; font-size: 13px; white-space: nowrap; }
 
-/* Pagination */
-.ral-pagination {
+/* Pagy pagination nav */
+nav.pagy.series-nav {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 4px;
   margin-top: 16px;
   font-size: 13px;
 }
 
-.ral-pagination__link {
-  color: #1d4ed8;
-  text-decoration: none;
-  padding: 4px 10px;
+nav.pagy.series-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
   background: #fff;
+  color: #1d4ed8;
+  text-decoration: none;
 }
 
-.ral-pagination__link:hover { background: #f5f5f5; }
-.ral-pagination__info { color: #666; }
+nav.pagy.series-nav a:hover:not([aria-disabled="true"]) { background: #f5f5f5; }
+
+nav.pagy.series-nav a[aria-current="page"] {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #1d4ed8;
+  font-weight: 600;
+}
+
+nav.pagy.series-nav a[aria-disabled="true"] {
+  color: #aaa;
+  cursor: default;
+  border-color: #f0f0f0;
+}
+
+nav.pagy.series-nav a[role="separator"] {
+  border: none;
+  color: #aaa;
+  min-width: auto;
+}
 
 /* Empty state */
 .ral-empty {

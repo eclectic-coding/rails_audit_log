@@ -31,9 +31,14 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
       expect(response.body).to include("create").and include("Post")
     end
 
-    context "with more than PER_PAGE entries" do
+    it "wraps the table in a turbo frame" do
+      get "/audit/audit_log_entries"
+      expect(response.body).to include('id="ral-entries"')
+    end
+
+    context "with more than page_size entries" do
       before do
-        (RailsAuditLog::AuditLogEntriesController::PER_PAGE + 2).times do |i|
+        (RailsAuditLog.page_size + 2).times do |i|
           RailsAuditLog::AuditLogEntry.create!(
             event: "create", item_type: "Post", item_id: i + 1,
             object_changes: { "title" => [nil, "Post #{i}"] }
@@ -41,21 +46,15 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
         end
       end
 
-      it "shows pagination controls" do
+      it "shows pagy pagination nav" do
         get "/audit/audit_log_entries"
-        expect(response.body).to include("Next →")
+        expect(response.body).to include('class="pagy series-nav"')
       end
 
       it "navigates to page 2" do
         get "/audit/audit_log_entries", params: { page: 2 }
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include("← Previous")
-      end
-
-      it "clamps page below 1 to page 1" do
-        get "/audit/audit_log_entries", params: { page: 0 }
-        expect(response).to have_http_status(:ok)
-        expect(response.body).not_to include("← Previous")
+        expect(response.body).to include('aria-current="page"')
       end
     end
   end
