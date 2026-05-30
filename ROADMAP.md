@@ -10,12 +10,7 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > A mountable UI for browsing the audit trail.
 
-- Mountable engine route: `mount RailsAuditLog::Engine, at: "/audit"`
-- Index view: paginated list of all audit entries (newest first)
-- Per-resource view: all entries for a given record, with inline diff rendering
-- Filter by actor, event type, time range, resource class
 - Diff display: side-by-side or inline attribute-level change highlighting
-- Asset delivery via propshaft, importmaps, and CDN-pinned turbo + stimulus (same engine pattern as `solid_stack_web`; CSS served as normal files, no inline style injection)
 - Configurable authentication block: `RailsAuditLog.authenticate { |c| c.current_user&.admin? }`
 
 ---
