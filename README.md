@@ -384,6 +384,32 @@ To save storage at the cost of reduced reification accuracy, switch to diff-only
 RailsAuditLog.store_snapshot = false
 ```
 
+### RSpec matchers
+
+Add to your `spec/rails_helper.rb` (or `spec_helper.rb`):
+
+```ruby
+require "rails_audit_log/matchers"
+
+RSpec.configure do |config|
+  config.include RailsAuditLog::Matchers
+end
+```
+
+Then use the matchers in any spec:
+
+```ruby
+# Assert a record has a matching audit entry
+expect(post).to have_audit_log_entry
+expect(post).to have_audit_log_entry(:update)
+expect(post).to have_audit_log_entry(:update).touching(:title)
+
+# Assert a block creates a matching audit entry
+expect { post.update!(title: "New") }.to create_audit_log_entry
+expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update)
+expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update).touching(:title)
+```
+
 ## Requirements
 
 - Ruby >= 3.3
