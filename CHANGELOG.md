@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog.async = true` — global default that enables async writes for all audited models; per-model `async: true` takes precedence over the default
 - `RailsAuditLog.batch_audit { }` — buffers all audit writes inside the block and flushes them with a single `insert_all!` call at the end, eliminating N+1 inserts during bulk imports; nested calls accumulate into the outermost batch; if the block raises, the buffer is discarded and no entries are written
 - `AuditLogEntry.slim` scope — selects all columns except the three JSON blob columns (`object_changes`, `object`, `metadata`); use for index or listing queries where blob data is not needed to reduce I/O and memory usage
+- `RailsAuditLog.connects_to = { database: { writing: :audit_db, reading: :audit_db } }` — optional separate database connection for `AuditLogEntry`; set in an initializer and the engine applies it via `connects_to` at boot; use to write audit data to a dedicated database without affecting the main app connection
 
 ## [0.6.0] - 2026-05-29
 

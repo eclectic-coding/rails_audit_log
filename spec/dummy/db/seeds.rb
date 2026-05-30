@@ -92,10 +92,19 @@ RailsAuditLog.with_actor(alice) do
   assoc_post.tags.delete(ruby_tag)  # tracked as remove
 end
 
+# Demonstrate 0.7.0 — batch_audit (bulk insert)
+puts "  Demonstrating batch_audit (bulk insert)..."
+RailsAuditLog.with_actor(admin) do
+  RailsAuditLog.batch_audit do
+    3.times { |i| Post.create!(title: "Batch post #{i + 1}", body: "Inserted via batch_audit.") }
+  end
+end
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
 puts "  #{Tag.count} tags"
 puts "  #{Comment.count} comments"
 puts "  #{Article.count} articles (only: [:title])"
 puts "  #{RailsAuditLog::AuditLogEntry.count} audit log entries"
+puts "  RailsAuditLog.connects_to: #{RailsAuditLog.connects_to.inspect} (nil = default connection)"
 puts "Done."
