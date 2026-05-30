@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Boot-time warning when a model includes `RailsAuditLog::Auditable` but the `audit_log_entries` table does not exist; the message names the model and provides the exact command to run the install generator and migration; silently skipped when the database is not yet reachable (e.g. before `db:create`)
 - `bin/rails generate rails_audit_log:initializer` — generates `config/initializers/rails_audit_log.rb` with every configuration option documented as commented examples inside a `RailsAuditLog.configure` block
 - `RailsAuditLog.configure { |config| }` — optional block-style configuration; yields the module so all `mattr_accessor` setters are reachable as `config.setting = value`
 - `RailsAuditLog::MinitestAssertions` — opt-in Minitest assertions; `require "rails_audit_log/minitest_assertions"` and `include RailsAuditLog::MinitestAssertions` in `ActiveSupport::TestCase` to get `assert_audit_log_entry(record, event:, touching:, message:)` and `refute_audit_log_entry(record, event:, touching:, message:)`

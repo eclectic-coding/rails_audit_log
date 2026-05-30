@@ -10,6 +10,8 @@ module RailsAuditLog
       class_attribute :_audit_log_version_limit,  default: nil
       class_attribute :_audit_log_async,          default: false
 
+      _warn_if_audit_table_missing
+
       has_many :audit_log_entries,
                class_name: "RailsAuditLog::AuditLogEntry",
                as: :item,
@@ -52,6 +54,18 @@ module RailsAuditLog
     end
 
     class_methods do
+      def _warn_if_audit_table_missing
+        return if connection.table_exists?("audit_log_entries")
+
+        warn "[RailsAuditLog] WARNING: #{name} includes RailsAuditLog::Auditable but the " \
+             "'audit_log_entries' table does not exist. " \
+             "Run `bin/rails generate rails_audit_log:install && bin/rails db:migrate` to create it."
+      rescue ActiveRecord::NoDatabaseError,
+             ActiveRecord::ConnectionNotEstablished,
+             ActiveRecord::StatementInvalid
+        # DB not reachable during this phase (e.g. before db:create) — skip the check
+      end
+
       def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, async: nil)
         self._audit_log_only          = only.map(&:to_s)   if only
         self._audit_log_ignore        = ignore.map(&:to_s) if ignore
