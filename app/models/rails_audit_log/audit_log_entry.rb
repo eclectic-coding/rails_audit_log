@@ -3,6 +3,7 @@ module RailsAuditLog
     self.table_name = "audit_log_entries"
 
     EVENTS = %w[create update destroy].freeze
+    BLOB_COLUMNS = %w[object_changes object metadata].freeze
 
     belongs_to :item, polymorphic: true, optional: true
     belongs_to :actor, polymorphic: true, optional: true
@@ -36,6 +37,9 @@ module RailsAuditLog
     # Time scopes
     scope :since, ->(time) { where(created_at: time..) }
     scope :until, ->(time) { where(created_at: ..time) }
+
+    # Projection scope — omits JSON blob columns for index/listing queries
+    scope :slim, -> { select(column_names - BLOB_COLUMNS) }
 
     # Instance methods
 
