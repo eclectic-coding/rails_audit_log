@@ -151,6 +151,26 @@ end
 
 `belongs_to` foreign-key changes are already tracked as regular column updates and require no extra configuration.
 
+### Async audit writes
+
+Offload audit writes to a background job by passing `async: true` to `audit_log`. The entry is enqueued via `RailsAuditLog::WriteAuditLogJob` (a subclass of `ActiveJob::Base`) so the request does not block on the database write:
+
+```ruby
+class Post < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log async: true
+end
+```
+
+Enable async globally in an initializer — per-model `async: true` takes precedence:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.async = true
+```
+
+Configure the queue adapter and queue name through standard ActiveJob settings. Version pruning also runs inside the job when `version_limit` is set.
+
 ### Capping history per record
 
 Limit how many audit entries are kept per record with `version_limit:`. Oldest entries are pruned automatically after each write once the cap is reached:

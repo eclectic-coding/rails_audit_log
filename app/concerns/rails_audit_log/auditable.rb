@@ -8,6 +8,7 @@ module RailsAuditLog
       class_attribute :_audit_log_meta,           default: nil
       class_attribute :_audit_log_associations,   default: nil
       class_attribute :_audit_log_version_limit,  default: nil
+      class_attribute :_audit_log_async,          default: false
 
       has_many :audit_log_entries,
                class_name: "RailsAuditLog::AuditLogEntry",
@@ -51,12 +52,13 @@ module RailsAuditLog
     end
 
     class_methods do
-      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil)
+      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, async: nil)
         self._audit_log_only          = only.map(&:to_s)   if only
         self._audit_log_ignore        = ignore.map(&:to_s) if ignore
         self._audit_log_meta          = meta                if meta
         self._audit_log_associations  = associations        unless associations.nil?
         self._audit_log_version_limit = version_limit       unless version_limit.nil?
+        self._audit_log_async         = async               unless async.nil?
       end
     end
 
@@ -86,18 +88,18 @@ module RailsAuditLog
 
       actor = RailsAuditLog.actor
       meta  = build_audit_metadata
-      RailsAuditLog::AuditLogEntry.create!(
+      write_audit_entry(
         event:              "update",
         item_type:          self.class.name,
         item_id:            id,
         object_changes:     { assoc_name => [before, after] },
+        object:             nil,
         reason:             RailsAuditLog.reason,
         metadata:           meta.presence,
         whodunnit_snapshot: actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
         actor_type:         actor&.class&.name,
         actor_id:           actor.respond_to?(:id) ? actor.id : nil
       )
-      prune_audit_entries
     end
 
     def record_audit_entry(event, changes, snapshot = nil)
@@ -107,8 +109,8 @@ module RailsAuditLog
       return if filtered.empty? && event == "update"
 
       actor = RailsAuditLog.actor
-      meta = build_audit_metadata
-      RailsAuditLog::AuditLogEntry.create!(
+      meta  = build_audit_metadata
+      write_audit_entry(
         event:               event,
         item_type:           self.class.name,
         item_id:             id,
@@ -120,7 +122,16 @@ module RailsAuditLog
         actor_type:          actor&.class&.name,
         actor_id:            actor.respond_to?(:id) ? actor.id : nil
       )
-      prune_audit_entries
+    end
+
+    def write_audit_entry(entry_attrs)
+      if _audit_log_async || RailsAuditLog.async
+        limit = self.class._audit_log_version_limit || RailsAuditLog.version_limit
+        WriteAuditLogJob.perform_later(entry_attrs.stringify_keys, version_limit: limit)
+      else
+        RailsAuditLog::AuditLogEntry.create!(entry_attrs)
+        prune_audit_entries
+      end
     end
 
     def prune_audit_entries

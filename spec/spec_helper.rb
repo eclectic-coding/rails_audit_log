@@ -18,6 +18,7 @@ SimpleCov.start "rails" do
   add_group "Concerns",    "app/concerns"
   add_group "Controllers", "app/controllers"
   add_group "Helpers",     "app/helpers"
+  add_group "Jobs",        "app/jobs"
   add_group "Views",       "app/views"
   add_group "Library",     "lib"
 end
