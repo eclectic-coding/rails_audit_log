@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog.version_limit = N` — global default applied when no per-model limit is set; per-model `version_limit:` takes precedence
 - `audit_log async: true` — enqueues audit writes via `RailsAuditLog::WriteAuditLogJob` (an `ActiveJob::Base` subclass) instead of writing inline; entry creation and version pruning both happen inside the job
 - `RailsAuditLog.async = true` — global default that enables async writes for all audited models; per-model `async: true` takes precedence over the default
+- `RailsAuditLog.batch_audit { }` — buffers all audit writes inside the block and flushes them with a single `insert_all!` call at the end, eliminating N+1 inserts during bulk imports; nested calls accumulate into the outermost batch; if the block raises, the buffer is discarded and no entries are written
 
 ## [0.6.0] - 2026-05-29
 

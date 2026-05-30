@@ -125,7 +125,9 @@ module RailsAuditLog
     end
 
     def write_audit_entry(entry_attrs)
-      if _audit_log_async || RailsAuditLog.async
+      if (buffer = RailsAuditLog.batch_audit_buffer)
+        buffer << entry_attrs.stringify_keys.merge("created_at" => Time.current)
+      elsif _audit_log_async || RailsAuditLog.async
         limit = self.class._audit_log_version_limit || RailsAuditLog.version_limit
         WriteAuditLogJob.perform_later(entry_attrs.stringify_keys, version_limit: limit)
       else
