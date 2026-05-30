@@ -384,6 +384,28 @@ To save storage at the cost of reduced reification accuracy, switch to diff-only
 RailsAuditLog.store_snapshot = false
 ```
 
+### Test helper
+
+`without_audit_log` silences audit tracking inside the block — useful in FactoryBot factories and seed data to avoid noise in the audit trail:
+
+```ruby
+# spec/rails_helper.rb (or spec/support/factory_helpers.rb)
+require "rails_audit_log/test_helpers"
+
+RSpec.configure do |config|
+  config.include RailsAuditLog::TestHelpers
+end
+
+# Or include directly in FactoryBot definitions:
+FactoryBot.define do
+  factory :post do
+    after(:create) { |p| without_audit_log { p.update!(cached_at: Time.current) } }
+  end
+end
+```
+
+`without_audit_log` is a prefix-free wrapper around `RailsAuditLog.disable` — thread-safe and restores tracking even if the block raises.
+
 ### RSpec matchers
 
 Add to your `spec/rails_helper.rb` (or `spec_helper.rb`):

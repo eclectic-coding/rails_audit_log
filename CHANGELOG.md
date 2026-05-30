@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `RailsAuditLog::TestHelpers` — opt-in test helper module; `require "rails_audit_log/test_helpers"` and `include RailsAuditLog::TestHelpers` to get `without_audit_log { }`, a prefix-free wrapper around `RailsAuditLog.disable` for use in FactoryBot factories, seeds, and other test setup
 - `RailsAuditLog::Matchers` — opt-in RSpec matchers; add `require "rails_audit_log/matchers"` and `include RailsAuditLog::Matchers` to use:
   - `expect(record).to have_audit_log_entry(:update).touching(:title)` — asserts the record has a matching audit entry
   - `expect { action }.to create_audit_log_entry(event: :create, touching: :title)` — asserts the block produces a matching entry; supports chaining `.touching`

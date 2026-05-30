@@ -34,6 +34,9 @@ RSpec.configure do |config|
   require "rails_audit_log/matchers"
   config.include RailsAuditLog::Matchers
 
+  require "rails_audit_log/test_helpers"
+  config.include RailsAuditLog::TestHelpers
+
   config.shared_context_metadata_behavior = :apply_to_host_groups
   config.filter_run_when_matching :focus
   config.disable_monkey_patching!
