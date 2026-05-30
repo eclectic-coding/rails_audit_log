@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-05-30
+
 ### Added
 
 - `audit_log version_limit: N` — caps the number of `AuditLogEntry` records retained per tracked object; oldest entries are pruned automatically after each write once the limit is exceeded
@@ -102,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.7.0
 [0.6.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.6.0
 [0.5.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.5.0
 [0.4.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.4.0
