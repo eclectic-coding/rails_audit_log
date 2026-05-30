@@ -6,14 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.8.0 — Developer experience
-
-> Testing and onboarding quality of life.
-
-- Detailed warning when `has_audit_log` is called on a model before the `audit_log_entries` table exists
-
----
-
 ## 0.9.0 — Web dashboard
 
 > A mountable UI for browsing the audit trail.

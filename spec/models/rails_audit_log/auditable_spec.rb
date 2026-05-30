@@ -1,6 +1,34 @@
 require "rails_helper"
 
 RSpec.describe RailsAuditLog::Auditable do
+  describe "boot-time table check" do
+    it "emits no warning when audit_log_entries table exists" do
+      allow(Post.connection).to receive(:table_exists?).with("audit_log_entries").and_return(true)
+      expect { Post.send(:_warn_if_audit_table_missing) }.not_to output.to_stderr
+    end
+
+    it "emits a warning when audit_log_entries table is missing" do
+      klass = Class.new(ApplicationRecord) do
+        self.table_name = "posts"
+        def self.name = "MyModel"
+      end
+      allow(klass.connection).to receive(:table_exists?).with("audit_log_entries").and_return(false)
+      expect { klass.include(RailsAuditLog::Auditable) }
+        .to output(/\[RailsAuditLog\] WARNING.*MyModel.*audit_log_entries/).to_stderr
+    end
+
+    it "stays silent when the database is not reachable" do
+      klass = Class.new(ApplicationRecord) do
+        self.table_name = "posts"
+        def self.name = "MyModel"
+      end
+      allow(klass.connection).to receive(:table_exists?)
+        .and_raise(ActiveRecord::ConnectionNotEstablished)
+      expect { klass.include(RailsAuditLog::Auditable) }.not_to raise_error
+    end
+  end
+
+
   describe "audit_log_entries association" do
     it "provides a has_many association on the including model" do
       post = Post.create!(title: "Hello")
