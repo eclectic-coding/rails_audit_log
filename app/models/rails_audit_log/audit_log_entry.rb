@@ -2,8 +2,9 @@ module RailsAuditLog
   class AuditLogEntry < ApplicationRecord
     self.table_name = "audit_log_entries"
 
-    EVENTS = %w[create update destroy].freeze
+    EVENTS       = %w[create update destroy].freeze
     BLOB_COLUMNS = %w[object_changes object metadata].freeze
+    PERIODS      = { "1h" => 1.hour, "24h" => 24.hours, "7d" => 7.days }.freeze
 
     def self.configure_connection!
       return unless (opts = RailsAuditLog.connects_to)
@@ -41,8 +42,9 @@ module RailsAuditLog
     }
 
     # Time scopes
-    scope :since, ->(time) { where(created_at: time..) }
-    scope :until, ->(time) { where(created_at: ..time) }
+    scope :since,      ->(time)   { where(created_at: time..) }
+    scope :until,      ->(time)   { where(created_at: ..time) }
+    scope :for_period, ->(period) { where(created_at: PERIODS[period].ago..) }
 
     # Projection scope — omits JSON blob columns for index/listing queries
     scope :slim, -> { select(column_names - BLOB_COLUMNS) }
