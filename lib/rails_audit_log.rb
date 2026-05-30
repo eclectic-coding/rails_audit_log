@@ -65,6 +65,24 @@ module RailsAuditLog
     self.reason = previous
   end
 
+  def self.batch_audit
+    return yield if Thread.current[:rails_audit_log_batch]
+
+    Thread.current[:rails_audit_log_batch] = []
+    begin
+      result = yield
+      batch = Thread.current[:rails_audit_log_batch]
+      AuditLogEntry.insert_all!(batch) if batch.any?
+      result
+    ensure
+      Thread.current[:rails_audit_log_batch] = nil
+    end
+  end
+
+  def self.batch_audit_buffer
+    Thread.current[:rails_audit_log_batch]
+  end
+
   def self.version_at(record, time)
     entry = AuditLogEntry
       .where(item_type: record.class.name, item_id: record.id)

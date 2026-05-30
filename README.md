@@ -151,6 +151,21 @@ end
 
 `belongs_to` foreign-key changes are already tracked as regular column updates and require no extra configuration.
 
+### Bulk audit writes
+
+Wrap a block with `RailsAuditLog.batch_audit` to buffer all audit entries and flush them in a single `insert_all!` call at the end, eliminating N+1 inserts during imports:
+
+```ruby
+RailsAuditLog.batch_audit do
+  records.each { |attrs| Post.create!(attrs) }
+end
+# All audit entries written in one INSERT
+```
+
+Nested calls accumulate into the outermost batch — only one `insert_all!` fires. If the block raises, the buffer is discarded and no entries are written.
+
+> **Note:** Version pruning (`version_limit`) is deferred in batch mode — the next write outside the batch will trigger pruning as usual.
+
 ### Async audit writes
 
 Offload audit writes to a background job by passing `async: true` to `audit_log`. The entry is enqueued via `RailsAuditLog::WriteAuditLogJob` (a subclass of `ActiveJob::Base`) so the request does not block on the database write:
