@@ -1,0 +1,57 @@
+.ral-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.ral-filter-input {
+  padding: 5px 10px;
+  font-size: 13px;
+  border: 1px solid var(--ral-border);
+  border-radius: var(--ral-radius);
+  background: var(--ral-surface);
+  color: var(--ral-text);
+  min-width: 180px;
+}
+.ral-filter-input:focus {
+  outline: 2px solid var(--ral-primary);
+  outline-offset: -1px;
+}
+
+.ral-filter-select {
+  padding: 5px 8px;
+  font-size: 13px;
+  border: 1px solid var(--ral-border);
+  border-radius: var(--ral-radius);
+  background: var(--ral-surface);
+  color: var(--ral-text);
+  cursor: pointer;
+}
+
+.ral-period-filter {
+  display: flex;
+  border: 1px solid var(--ral-border);
+  border-radius: var(--ral-radius);
+  overflow: hidden;
+  margin-left: auto;
+}
+
+.ral-period-btn {
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ral-muted);
+  background: var(--ral-surface);
+  text-decoration: none;
+}
+.ral-period-btn + .ral-period-btn { border-left: 1px solid var(--ral-border); }
+.ral-period-btn:hover:not(.ral-period-btn--active) {
+  background: var(--ral-bg);
+  color: var(--ral-text);
+  text-decoration: none;
+}
+.ral-period-btn--active { background: var(--ral-primary); color: #fff; }
+
+.ral-filters__clear { font-size: 13px; }

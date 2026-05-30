@@ -22,7 +22,7 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
 
     it "shows an empty state when there are no entries" do
       get "/audit/audit_log_entries"
-      expect(response.body).to include("No audit entries yet.")
+      expect(response.body).to include("No audit entries found.")
     end
 
     it "renders a table row for each entry on the page" do
@@ -56,6 +56,62 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include('aria-current="page"')
       end
+    end
+  end
+
+  describe "GET /audit/audit_log_entries filters" do
+    before do
+      user = User.create!(name: "Alice")
+      RailsAuditLog.with_actor(user) do
+        @post = Post.create!(title: "Hello")
+        @post.update!(title: "Updated")
+      end
+      Post.create!(title: "Other post")
+    end
+
+    it "filters by event type" do
+      get "/audit/audit_log_entries", params: { event: "update" }
+      expect(response.body).to include("update")
+      expect(response.body).not_to include("ral-badge--create")
+    end
+
+    it "ignores invalid event values" do
+      get "/audit/audit_log_entries", params: { event: "DROP TABLE" }
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ral-badge")
+    end
+
+    it "filters by resource class" do
+      get "/audit/audit_log_entries", params: { item_type: "Post" }
+      expect(response.body).to include("Post")
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "filters by actor name" do
+      get "/audit/audit_log_entries", params: { q: "Alice" }
+      expect(response.body).to include("Alice")
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "filters by period" do
+      get "/audit/audit_log_entries", params: { period: "1h" }
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ral-period-btn--active")
+    end
+
+    it "shows the Clear link when filters are active" do
+      get "/audit/audit_log_entries", params: { event: "create" }
+      expect(response.body).to include("Clear")
+    end
+
+    it "does not show the Clear link when no filters are active" do
+      get "/audit/audit_log_entries"
+      expect(response.body).not_to include(">Clear<")
+    end
+
+    it "renders the filter form" do
+      get "/audit/audit_log_entries"
+      expect(response.body).to include("ral-filters")
     end
   end
 
