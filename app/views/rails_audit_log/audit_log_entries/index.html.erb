@@ -1,2 +1,35 @@
-<h1>Audit Log</h1>
-<p><%= @entries.count %> entries</p>
+<div class="ral-page-header">
+  <h1 class="ral-page-header__title">Audit Entries</h1>
+  <span class="ral-page-header__meta"><%= @pagy.count %> <%= "entry".pluralize(@pagy.count) %></span>
+</div>
+
+<%= turbo_frame_tag "ral-entries", data: { turbo_action: "advance" } do %>
+  <% if @entries.any? %>
+    <div class="ral-table-wrap">
+      <table class="ral-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Resource</th>
+            <th>Actor</th>
+            <th>When</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @entries.each do |entry| %>
+            <tr>
+              <td><span class="ral-badge ral-badge--<%= entry.event %>"><%= entry.event %></span></td>
+              <td><%= link_to "#{entry.item_type} ##{entry.item_id}", audit_log_entry_path(entry), class: "ral-link" %></td>
+              <td><%= entry.whodunnit_snapshot.presence || (entry.actor_type ? "#{entry.actor_type} \##{entry.actor_id}" : "—") %></td>
+              <td class="ral-timestamp"><%= entry.created_at.utc.strftime("%Y-%m-%d %H:%M UTC") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%== @pagy.series_nav(aria_label: "Pagination") if @pagy.pages > 1 %>
+  <% else %>
+    <p class="ral-empty">No audit entries yet.</p>
+  <% end %>
+<% end %>

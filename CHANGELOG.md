@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Dashboard index view at `/audit` — paginated table of all audit entries (newest first) using pagy; table shows event badge, resource link, actor display name, and timestamp; Turbo Frame wraps the table so page navigation is a partial update without a full-page reload; includes empty state
+- `RailsAuditLog.page_size = N` — configures entries per page in the web dashboard (default 25); set in an initializer or the `configure` block
 - Mountable web dashboard at a configurable path via `mount RailsAuditLog::Engine, at: "/audit"`; engine routes define a root and `audit_log_entries` index and show endpoints
 - Asset delivery via propshaft, importmaps, and CDN-pinned `@hotwired/turbo` and `@hotwired/stimulus`; no inline style injection, no host app asset pipeline conflict
 - `turbo-rails` and `importmap-rails` added as gem dependencies

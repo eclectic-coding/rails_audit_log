@@ -100,6 +100,15 @@ RailsAuditLog.with_actor(admin) do
   end
 end
 
+# Bulk entries so the dashboard index shows multiple pages
+puts "  Creating bulk entries for pagination demo..."
+RailsAuditLog.with_actor(alice) do
+  50.times do |i|
+    post = Post.create!(title: "Pagination Demo #{i + 1}", body: "Body #{i + 1}.")
+    post.update!(title: "Pagination Demo #{i + 1} (edited)") if i.even?
+  end
+end
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
 puts "  #{Tag.count} tags"

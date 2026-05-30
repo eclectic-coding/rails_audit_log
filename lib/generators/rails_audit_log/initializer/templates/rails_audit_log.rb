@@ -28,4 +28,7 @@ RailsAuditLog.configure do |config|
 
   # Route AuditLogEntry to a dedicated database (Rails multi-DB). Default: nil
   # config.connects_to = { database: { writing: :audit_log, reading: :audit_log } }
+
+  # Number of entries per page in the web dashboard. Default: 25
+  # config.page_size = 50
 end

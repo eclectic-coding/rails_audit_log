@@ -14,6 +14,7 @@ module RailsAuditLog
   mattr_accessor :version_limit, default: nil
   mattr_accessor :async, default: false
   mattr_accessor :connects_to, default: nil
+  mattr_accessor :page_size,   default: 25
   mattr_accessor :whodunnit_display, default: ->(actor) {
     actor.respond_to?(:name) ? actor.name.to_s : actor.to_s
   }

@@ -1,7 +1,7 @@
 module RailsAuditLog
   class AuditLogEntriesController < ApplicationController
     def index
-      @entries = AuditLogEntry.order(created_at: :desc)
+      @pagy, @entries = pagy(AuditLogEntry.order(created_at: :desc))
     end
 
     def show
