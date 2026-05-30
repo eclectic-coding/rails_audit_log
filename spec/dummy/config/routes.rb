@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  root to: redirect("/audit_entries")
-  resources :audit_entries, only: [:index]
+  mount RailsAuditLog::Engine, at: "/audit"
+
+  root to: redirect("/audit")
   resources :posts, only: [:create]
 end
