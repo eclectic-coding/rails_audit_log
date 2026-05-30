@@ -406,6 +406,28 @@ end
 
 `without_audit_log` is a prefix-free wrapper around `RailsAuditLog.disable` — thread-safe and restores tracking even if the block raises.
 
+### Minitest assertions
+
+Add to your `test/test_helper.rb`:
+
+```ruby
+require "rails_audit_log/minitest_assertions"
+
+class ActiveSupport::TestCase
+  include RailsAuditLog::MinitestAssertions
+end
+```
+
+Then use the assertions in any test:
+
+```ruby
+assert_audit_log_entry post                                      # any entry
+assert_audit_log_entry post, event: :update                      # update entry
+assert_audit_log_entry post, event: :update, touching: :title    # touching title
+refute_audit_log_entry post, event: :update                      # no update entry
+assert_audit_log_entry post, event: :update, message: "custom"  # custom failure message
+```
+
 ### RSpec matchers
 
 Add to your `spec/rails_helper.rb` (or `spec_helper.rb`):
