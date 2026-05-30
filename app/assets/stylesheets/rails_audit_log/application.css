@@ -163,6 +163,83 @@ nav.pagy.series-nav a[role="separator"] {
   min-width: auto;
 }
 
+/* Breadcrumb */
+.ral-breadcrumb { font-size: 12px; color: #666; margin-bottom: 4px; }
+
+/* Card */
+.ral-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Section title */
+.ral-section-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333; }
+
+/* Meta key/value list */
+.ral-meta { display: grid; gap: 8px; }
+.ral-meta__row { display: flex; gap: 16px; font-size: 13px; }
+.ral-meta__row dt { width: 80px; color: #666; flex-shrink: 0; }
+.ral-meta__row dd { color: #1a1a1a; }
+
+/* Muted text */
+.ral-muted { color: #666; font-size: 13px; }
+
+/* Reason */
+.ral-reason { font-size: 12px; color: #666; font-style: italic; }
+
+/* Entry navigation (show page) */
+.ral-entry-nav { display: flex; gap: 8px; align-items: center; }
+
+/* Diff table */
+.ral-diff {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ral-diff th {
+  background: #f9f9f9;
+  padding: 6px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.ral-diff td { padding: 6px 12px; border-bottom: 1px solid #f5f5f5; vertical-align: top; }
+.ral-diff tbody tr:last-child td { border-bottom: none; }
+.ral-diff__attr { font-weight: 500; color: #333; width: 160px; }
+.ral-diff__before { color: #991b1b; background: #fff5f5; font-family: monospace; }
+.ral-diff__after  { color: #166534; background: #f0fdf4; font-family: monospace; }
+
+/* Timeline */
+.ral-timeline { display: flex; flex-direction: column; gap: 16px; }
+
+.ral-timeline__entry {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ral-timeline__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e5e5e5;
+  font-size: 13px;
+}
+
+.ral-timeline__detail-link { margin-left: auto; }
+
 /* Empty state */
 .ral-empty {
   background: #fff;

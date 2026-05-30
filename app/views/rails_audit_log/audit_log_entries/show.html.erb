@@ -1,1 +1,50 @@
-<h1>Audit Log Entry #<%= @entry.id %></h1>
+<div class="ral-page-header">
+  <div>
+    <p class="ral-breadcrumb">
+      <%= link_to "Audit Entries", audit_log_entries_path, class: "ral-link" %> /
+      <%= link_to "#{@entry.item_type} ##{@entry.item_id}", resource_audit_log_entries_path(item_type: @entry.item_type, item_id: @entry.item_id), class: "ral-link" %>
+    </p>
+    <h1 class="ral-page-header__title">Entry #<%= @entry.id %></h1>
+  </div>
+  <nav class="ral-entry-nav" aria-label="Entry navigation">
+    <% if (prev_entry = @entry.previous) %>
+      <%= link_to "← Previous", audit_log_entry_path(prev_entry), class: "ral-pagination__link" %>
+    <% end %>
+    <% if (next_entry = @entry.next) %>
+      <%= link_to "Next →", audit_log_entry_path(next_entry), class: "ral-pagination__link" %>
+    <% end %>
+  </nav>
+</div>
+
+<div class="ral-card">
+  <dl class="ral-meta">
+    <div class="ral-meta__row">
+      <dt>Event</dt>
+      <dd><span class="ral-badge ral-badge--<%= @entry.event %>"><%= @entry.event %></span></dd>
+    </div>
+    <div class="ral-meta__row">
+      <dt>Resource</dt>
+      <dd><%= link_to "#{@entry.item_type} ##{@entry.item_id}", resource_audit_log_entries_path(item_type: @entry.item_type, item_id: @entry.item_id), class: "ral-link" %></dd>
+    </div>
+    <% actor = @entry.whodunnit_snapshot.presence || (@entry.actor_type ? "#{@entry.actor_type} \##{@entry.actor_id}" : "—") %>
+    <div class="ral-meta__row">
+      <dt>Actor</dt>
+      <dd><%= actor %></dd>
+    </div>
+    <div class="ral-meta__row">
+      <dt>When</dt>
+      <dd class="ral-timestamp"><%= @entry.created_at.utc.strftime("%Y-%m-%d %H:%M:%S UTC") %></dd>
+    </div>
+    <% if @entry.reason.present? %>
+      <div class="ral-meta__row">
+        <dt>Reason</dt>
+        <dd><%= @entry.reason %></dd>
+      </div>
+    <% end %>
+  </dl>
+</div>
+
+<h2 class="ral-section-title">Changes</h2>
+<div class="ral-card">
+  <%= render "diff", entry: @entry %>
+</div>

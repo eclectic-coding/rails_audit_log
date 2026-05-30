@@ -59,11 +59,72 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
     end
   end
 
-  describe "GET /audit/audit_log_entries/:id" do
+  describe "GET /audit/audit_log_entries/resource/:item_type/:item_id" do
+    let!(:post)  { Post.create!(title: "Hello") }
+    let!(:other) { Post.create!(title: "Other") }
+
     it "returns 200" do
-      entry = Post.create!(title: "Hello").audit_log_entries.first
+      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "shows only entries for the specified record" do
+      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      expect(response.body).to include("Post ##{post.id}")
+      expect(response.body).not_to include("Post ##{other.id}")
+    end
+
+    it "shows the entry count for the record" do
+      post.update!(title: "Updated")
+      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      expect(response.body).to include("2 entries")
+    end
+
+    it "renders a diff table for each entry" do
+      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      expect(response.body).to include("ral-diff")
+    end
+
+    it "wraps entries in a turbo frame" do
+      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      expect(response.body).to include('id="ral-resource-entries"')
+    end
+
+    it "shows an empty state when the record has no entries" do
+      get "/audit/audit_log_entries/resource/Post/0"
+      expect(response.body).to include("No audit entries for this record.")
+    end
+  end
+
+  describe "GET /audit/audit_log_entries/:id" do
+    let!(:entry) { Post.create!(title: "Hello").audit_log_entries.first }
+
+    it "returns 200" do
       get "/audit/audit_log_entries/#{entry.id}"
       expect(response).to have_http_status(:ok)
+    end
+
+    it "shows entry metadata" do
+      get "/audit/audit_log_entries/#{entry.id}"
+      expect(response.body).to include("create")
+      expect(response.body).to include("Post")
+    end
+
+    it "renders the diff table" do
+      get "/audit/audit_log_entries/#{entry.id}"
+      expect(response.body).to include("ral-diff")
+    end
+
+    it "links to the resource timeline" do
+      get "/audit/audit_log_entries/#{entry.id}"
+      expect(response.body).to include("resource/Post/#{entry.item_id}")
+    end
+
+    it "shows next entry link when one exists" do
+      post = Post.find(entry.item_id)
+      post.update!(title: "Updated")
+      get "/audit/audit_log_entries/#{entry.id}"
+      expect(response.body).to include("Next →")
     end
   end
 end
