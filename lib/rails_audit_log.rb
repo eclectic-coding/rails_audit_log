@@ -9,6 +9,7 @@ module RailsAuditLog
   mattr_accessor :capture_request_metadata, default: false
   mattr_accessor :version_limit, default: nil
   mattr_accessor :async, default: false
+  mattr_accessor :connects_to, default: nil
   mattr_accessor :whodunnit_display, default: ->(actor) {
     actor.respond_to?(:name) ? actor.name.to_s : actor.to_s
   }

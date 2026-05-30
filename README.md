@@ -102,6 +102,19 @@ entry.diff
 # => { "title" => { from: "Hello", to: "World" } }
 ```
 
+### Separate audit database
+
+Route all audit writes to a dedicated database by setting `connects_to` in an initializer. The engine applies it to `AuditLogEntry` at boot:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.connects_to = {
+  database: { writing: :audit_log, reading: :audit_log }
+}
+```
+
+The key (e.g. `:audit_log`) must match a database key in `config/database.yml`. All reads and writes on `AuditLogEntry` — including `batch_audit` inserts and `WriteAuditLogJob` — use that connection automatically.
+
 ### Lightweight queries
 
 Use `.slim` to exclude the three JSON blob columns (`object_changes`, `object`, `metadata`) from the SQL projection. This is useful for index or listing views where you only need the entry header (who, what event, when):

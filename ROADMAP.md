@@ -6,14 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.7.0 — Performance & scale
-
-> Make auditing cheap enough for high-volume apps.
-
-- Optional separate database connection (via `connects_to`) for audit tables
-
----
-
 ## 0.8.0 — Developer experience
 
 > Testing and onboarding quality of life.

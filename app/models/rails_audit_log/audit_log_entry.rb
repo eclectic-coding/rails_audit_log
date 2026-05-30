@@ -5,6 +5,12 @@ module RailsAuditLog
     EVENTS = %w[create update destroy].freeze
     BLOB_COLUMNS = %w[object_changes object metadata].freeze
 
+    def self.configure_connection!
+      return unless (opts = RailsAuditLog.connects_to)
+
+      connects_to(**opts)
+    end
+
     belongs_to :item, polymorphic: true, optional: true
     belongs_to :actor, polymorphic: true, optional: true
 
