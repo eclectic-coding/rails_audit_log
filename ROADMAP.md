@@ -10,8 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Make auditing cheap enough for high-volume apps.
 
-- Async audit writes via ActiveJob: `has_audit_log async: true`
-- Bulk-insert support — `insert_all`-backed batch recording for imports
 - `AuditLogEntry` scopes use `select` projection to avoid loading unused JSON blobs
 - Optional separate database connection (via `connects_to`) for audit tables
 
