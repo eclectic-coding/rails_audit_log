@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `bin/rails generate rails_audit_log:initializer` — generates `config/initializers/rails_audit_log.rb` with every configuration option documented as commented examples inside a `RailsAuditLog.configure` block
+- `RailsAuditLog.configure { |config| }` — optional block-style configuration; yields the module so all `mattr_accessor` setters are reachable as `config.setting = value`
 - `RailsAuditLog::MinitestAssertions` — opt-in Minitest assertions; `require "rails_audit_log/minitest_assertions"` and `include RailsAuditLog::MinitestAssertions` in `ActiveSupport::TestCase` to get `assert_audit_log_entry(record, event:, touching:, message:)` and `refute_audit_log_entry(record, event:, touching:, message:)`
 - `RailsAuditLog::TestHelpers` — opt-in test helper module; `require "rails_audit_log/test_helpers"` and `include RailsAuditLog::TestHelpers` to get `without_audit_log { }`, a prefix-free wrapper around `RailsAuditLog.disable` for use in FactoryBot factories, seeds, and other test setup
 - `RailsAuditLog::Matchers` — opt-in RSpec matchers; add `require "rails_audit_log/matchers"` and `include RailsAuditLog::Matchers` to use:

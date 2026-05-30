@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Testing and onboarding quality of life.
 
-- Rails generator for initializer: `bin/rails generate rails_audit_log:initializer`
 - Detailed warning when `has_audit_log` is called on a model before the `audit_log_entries` table exists
 
 ---

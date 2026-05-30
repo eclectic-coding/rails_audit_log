@@ -23,6 +23,14 @@ bin/rails generate rails_audit_log:install
 bin/rails db:migrate
 ```
 
+Optionally scaffold a commented initializer with every configuration option:
+
+```bash
+bin/rails generate rails_audit_log:initializer
+```
+
+This creates `config/initializers/rails_audit_log.rb` with all settings documented as commented examples inside a `RailsAuditLog.configure` block.
+
 ## Usage
 
 ### Tracking a model
