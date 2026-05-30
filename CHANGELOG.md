@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Per-resource timeline at `/audit/audit_log_entries/resource/:item_type/:item_id` — all entries for one record in chronological order, each showing event badge, actor, timestamp, optional reason, and inline diff; Turbo Frame pagination
+- Single-entry show page — breadcrumb nav, metadata card (event, resource, actor, timestamp, reason), full diff table, and Previous/Next entry navigation following the version chain
+- Shared diff partial — before/after table for `object_changes`; nil rendered as "—", associations shown as "Type #id", scalars in monospace with red/green colouring
 - Dashboard index view at `/audit` — paginated table of all audit entries (newest first) using pagy; table shows event badge, resource link, actor display name, and timestamp; Turbo Frame wraps the table so page navigation is a partial update without a full-page reload; includes empty state
 - `RailsAuditLog.page_size = N` — configures entries per page in the web dashboard (default 25); set in an initializer or the `configure` block
 - Mountable web dashboard at a configurable path via `mount RailsAuditLog::Engine, at: "/audit"`; engine routes define a root and `audit_log_entries` index and show endpoints

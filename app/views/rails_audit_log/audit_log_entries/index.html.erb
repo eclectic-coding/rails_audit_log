@@ -19,7 +19,7 @@
           <% @entries.each do |entry| %>
             <tr>
               <td><span class="ral-badge ral-badge--<%= entry.event %>"><%= entry.event %></span></td>
-              <td><%= link_to "#{entry.item_type} ##{entry.item_id}", audit_log_entry_path(entry), class: "ral-link" %></td>
+              <td><%= link_to "#{entry.item_type} ##{entry.item_id}", resource_audit_log_entries_path(item_type: entry.item_type, item_id: entry.item_id), class: "ral-link", data: { turbo_frame: "_top" } %></td>
               <td><%= entry.whodunnit_snapshot.presence || (entry.actor_type ? "#{entry.actor_type} \##{entry.actor_id}" : "—") %></td>
               <td class="ral-timestamp"><%= entry.created_at.utc.strftime("%Y-%m-%d %H:%M UTC") %></td>
             </tr>

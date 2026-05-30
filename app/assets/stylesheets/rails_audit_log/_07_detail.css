@@ -1,0 +1,16 @@
+.ral-card {
+  background: var(--ral-surface);
+  border: 1px solid var(--ral-border);
+  border-radius: var(--ral-radius);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--ral-shadow);
+}
+
+.ral-meta { display: grid; gap: 8px; }
+
+.ral-meta__row { display: flex; gap: 16px; font-size: 13px; }
+.ral-meta__row dt { width: 80px; color: var(--ral-muted); flex-shrink: 0; }
+.ral-meta__row dd { color: var(--ral-text); }
+
+.ral-entry-nav { display: flex; gap: 8px; align-items: center; }

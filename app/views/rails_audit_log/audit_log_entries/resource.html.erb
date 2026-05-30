@@ -1,0 +1,35 @@
+<div class="ral-page-header">
+  <div>
+    <p class="ral-breadcrumb"><%= link_to "Audit Entries", audit_log_entries_path, class: "ral-link" %></p>
+    <h1 class="ral-page-header__title"><%= @item_type %> #<%= @item_id %></h1>
+  </div>
+  <span class="ral-page-header__meta"><%= @pagy.count %> <%= "entry".pluralize(@pagy.count) %></span>
+</div>
+
+<%= turbo_frame_tag "ral-resource-entries", data: { turbo_action: "advance" } do %>
+  <% if @entries.any? %>
+    <div class="ral-timeline">
+      <% @entries.each do |entry| %>
+        <div class="ral-timeline__entry">
+          <div class="ral-timeline__header">
+            <span class="ral-badge ral-badge--<%= entry.event %>"><%= entry.event %></span>
+            <span class="ral-timestamp"><%= entry.created_at.utc.strftime("%Y-%m-%d %H:%M UTC") %></span>
+            <% actor = entry.whodunnit_snapshot.presence || (entry.actor_type ? "#{entry.actor_type} \##{entry.actor_id}" : nil) %>
+            <% if actor %>
+              <span class="ral-muted">by <%= actor %></span>
+            <% end %>
+            <% if entry.reason.present? %>
+              <span class="ral-reason">"<%= entry.reason %>"</span>
+            <% end %>
+            <%= link_to "Details →", audit_log_entry_path(entry), class: "ral-link ral-timeline__detail-link", data: { turbo_frame: "_top" } %>
+          </div>
+          <%= render "diff", entry: entry %>
+        </div>
+      <% end %>
+    </div>
+
+    <%== @pagy.series_nav(aria_label: "Pagination") if @pagy.pages > 1 %>
+  <% else %>
+    <p class="ral-empty">No audit entries for this record.</p>
+  <% end %>
+<% end %>

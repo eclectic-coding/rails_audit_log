@@ -1,0 +1,28 @@
+<% changes = entry.object_changes.presence %>
+<% if changes %>
+  <table class="ral-diff">
+    <thead>
+      <tr>
+        <th>Attribute</th>
+        <th>Before</th>
+        <th>After</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% changes.each do |attr, (before, after)| %>
+        <tr>
+          <td class="ral-diff__attr"><%= attr %></td>
+          <% if before.is_a?(Hash) || after.is_a?(Hash) %>
+            <td class="ral-diff__before"><%= before ? "#{before["type"]} ##{before["id"]}" : "—" %></td>
+            <td class="ral-diff__after"><%= after  ? "#{after["type"]} ##{after["id"]}"   : "—" %></td>
+          <% else %>
+            <td class="ral-diff__before"><%= before.nil? ? "—" : before.inspect %></td>
+            <td class="ral-diff__after"><%= after.nil?  ? "—" : after.inspect  %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="ral-muted">No changes recorded.</p>
+<% end %>
