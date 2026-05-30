@@ -11,6 +11,13 @@
   <%= javascript_importmap_tags "rails_audit_log" %>
 </head>
 <body>
-  <%= yield %>
+  <header class="ral-header">
+    <div class="ral-header__inner">
+      <%= link_to "Audit Log", root_path, class: "ral-header__logo" %>
+    </div>
+  </header>
+  <main class="ral-main">
+    <%= yield %>
+  </main>
 </body>
 </html>

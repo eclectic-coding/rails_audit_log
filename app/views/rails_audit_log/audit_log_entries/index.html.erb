@@ -1,2 +1,43 @@
-<h1>Audit Log</h1>
-<p><%= @entries.count %> entries</p>
+<div class="ral-page-header">
+  <h1 class="ral-page-header__title">Audit Entries</h1>
+  <span class="ral-page-header__meta"><%= @total %> <%= "entry".pluralize(@total) %></span>
+</div>
+
+<% if @entries.any? %>
+  <div class="ral-table-wrap">
+    <table class="ral-table">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Resource</th>
+          <th>Actor</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @entries.each do |entry| %>
+          <tr>
+            <td><span class="ral-badge ral-badge--<%= entry.event %>"><%= entry.event %></span></td>
+            <td><%= link_to "#{entry.item_type} ##{entry.item_id}", audit_log_entry_path(entry), class: "ral-link" %></td>
+            <td><%= entry.whodunnit_snapshot.presence || (entry.actor_type ? "#{entry.actor_type} \##{entry.actor_id}" : "—") %></td>
+            <td class="ral-timestamp"><%= entry.created_at.utc.strftime("%Y-%m-%d %H:%M UTC") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @total_pages > 1 %>
+    <nav class="ral-pagination" aria-label="Pagination">
+      <% if @page > 1 %>
+        <%= link_to "← Previous", audit_log_entries_path(page: @page - 1), class: "ral-pagination__link" %>
+      <% end %>
+      <span class="ral-pagination__info">Page <%= @page %> of <%= @total_pages %></span>
+      <% if @page < @total_pages %>
+        <%= link_to "Next →", audit_log_entries_path(page: @page + 1), class: "ral-pagination__link" %>
+      <% end %>
+    </nav>
+  <% end %>
+<% else %>
+  <p class="ral-empty">No audit entries yet.</p>
+<% end %>
