@@ -41,7 +41,6 @@ nav.pagy.series-nav a[role="separator"] {
   min-width: auto;
 }
 
-/* Reuse pagination link style for entry prev/next nav */
 .ral-pagination__link {
   display: inline-flex;
   align-items: center;

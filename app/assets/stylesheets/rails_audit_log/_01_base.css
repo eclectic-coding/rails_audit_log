@@ -1,17 +1,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --ral-bg:      #f5f5f5;
-  --ral-surface: #ffffff;
-  --ral-border:  #e5e5e5;
+  --ral-bg:            #f5f5f5;
+  --ral-surface:       #ffffff;
+  --ral-border:        #e5e5e5;
   --ral-border-subtle: #f0f0f0;
-  --ral-text:    #1a1a1a;
-  --ral-muted:   #666666;
-  --ral-primary: #1d4ed8;
-  --ral-danger:  #991b1b;
-  --ral-success: #166534;
-  --ral-radius:  6px;
-  --ral-shadow:  0 1px 3px rgba(0, 0, 0, 0.08);
+  --ral-text:          #1a1a1a;
+  --ral-muted:         #666666;
+  --ral-primary:       #1d4ed8;
+  --ral-danger:        #991b1b;
+  --ral-success:       #166534;
+  --ral-radius:        6px;
+  --ral-shadow:        0 1px 3px rgba(0, 0, 0, 0.08);
   --ral-surface-hover: #fafafa;
 }
 

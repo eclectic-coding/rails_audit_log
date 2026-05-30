@@ -1,8 +1,1 @@
-@import "_01_base.css";
-@import "_02_layout.css";
-@import "_03_table.css";
-@import "_04_badges.css";
-@import "_05_diff.css";
-@import "_06_timeline.css";
-@import "_07_detail.css";
-@import "_08_pagination.css";
+/* Styles are loaded via the dashboard_stylesheets helper which globs _*.css files. */

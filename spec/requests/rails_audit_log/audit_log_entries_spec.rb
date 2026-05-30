@@ -22,7 +22,7 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
 
     it "shows an empty state when there are no entries" do
       get "/audit/audit_log_entries"
-      expect(response.body).to include("No audit entries yet.")
+      expect(response.body).to include("No audit entries found.")
     end
 
     it "renders a table row for each entry on the page" do
@@ -59,39 +59,95 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
     end
   end
 
-  describe "GET /audit/audit_log_entries/resource/:item_type/:item_id" do
+  describe "GET /audit/audit_log_entries filters" do
+    before do
+      user = User.create!(name: "Alice")
+      RailsAuditLog.with_actor(user) do
+        @post = Post.create!(title: "Hello")
+        @post.update!(title: "Updated")
+      end
+      Post.create!(title: "Other post")
+    end
+
+    it "filters by event type" do
+      get "/audit/audit_log_entries", params: { event: "update" }
+      expect(response.body).to include("update")
+      expect(response.body).not_to include("ral-badge--create")
+    end
+
+    it "ignores invalid event values" do
+      get "/audit/audit_log_entries", params: { event: "DROP TABLE" }
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ral-badge")
+    end
+
+    it "filters by resource class" do
+      get "/audit/audit_log_entries", params: { item_type: "Post" }
+      expect(response.body).to include("Post")
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "filters by actor name" do
+      get "/audit/audit_log_entries", params: { q: "Alice" }
+      expect(response.body).to include("Alice")
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "filters by period" do
+      get "/audit/audit_log_entries", params: { period: "1h" }
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ral-period-btn--active")
+    end
+
+    it "shows the Clear link when filters are active" do
+      get "/audit/audit_log_entries", params: { event: "create" }
+      expect(response.body).to include("Clear")
+    end
+
+    it "does not show the Clear link when no filters are active" do
+      get "/audit/audit_log_entries"
+      expect(response.body).not_to include(">Clear<")
+    end
+
+    it "renders the filter form" do
+      get "/audit/audit_log_entries"
+      expect(response.body).to include("ral-filters")
+    end
+  end
+
+  describe "GET /audit/resources/:item_type/:item_id" do
     let!(:post)  { Post.create!(title: "Hello") }
     let!(:other) { Post.create!(title: "Other") }
 
     it "returns 200" do
-      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      get "/audit/resources/Post/#{post.id}"
       expect(response).to have_http_status(:ok)
     end
 
     it "shows only entries for the specified record" do
-      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      get "/audit/resources/Post/#{post.id}"
       expect(response.body).to include("Post ##{post.id}")
       expect(response.body).not_to include("Post ##{other.id}")
     end
 
     it "shows the entry count for the record" do
       post.update!(title: "Updated")
-      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      get "/audit/resources/Post/#{post.id}"
       expect(response.body).to include("2 entries")
     end
 
     it "renders a diff table for each entry" do
-      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      get "/audit/resources/Post/#{post.id}"
       expect(response.body).to include("ral-diff")
     end
 
     it "wraps entries in a turbo frame" do
-      get "/audit/audit_log_entries/resource/Post/#{post.id}"
+      get "/audit/resources/Post/#{post.id}"
       expect(response.body).to include('id="ral-resource-entries"')
     end
 
     it "shows an empty state when the record has no entries" do
-      get "/audit/audit_log_entries/resource/Post/0"
+      get "/audit/resources/Post/0"
       expect(response.body).to include("No audit entries for this record.")
     end
   end
@@ -117,7 +173,7 @@ RSpec.describe "RailsAuditLog dashboard", type: :request do
 
     it "links to the resource timeline" do
       get "/audit/audit_log_entries/#{entry.id}"
-      expect(response.body).to include("resource/Post/#{entry.item_id}")
+      expect(response.body).to include("resources/Post/#{entry.item_id}")
     end
 
     it "shows next entry link when one exists" do

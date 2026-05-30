@@ -1,8 +1,4 @@
-.ral-diff {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
+.ral-diff { width: 100%; border-collapse: collapse; font-size: 13px; }
 
 .ral-diff th {
   background: var(--ral-bg);
@@ -16,12 +12,7 @@
   border-bottom: 1px solid var(--ral-border);
 }
 
-.ral-diff td {
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--ral-border-subtle);
-  vertical-align: top;
-}
-
+.ral-diff td { padding: 6px 12px; border-bottom: 1px solid var(--ral-border-subtle); vertical-align: top; }
 .ral-diff tbody tr:last-child td { border-bottom: none; }
 
 .ral-diff__attr   { font-weight: 500; color: #333; width: 160px; }

@@ -4,6 +4,47 @@
 </div>
 
 <%= turbo_frame_tag "ral-entries", data: { turbo_action: "advance" } do %>
+  <form class="ral-filters" action="<%= audit_log_entries_path %>" method="get"
+        data-controller="search">
+    <%= hidden_field_tag :period, @period if @period %>
+
+    <input type="search" name="q" value="<%= @q %>"
+           class="ral-filter-input" placeholder="Filter by actor…"
+           autocomplete="off" aria-label="Filter by actor"
+           data-action="input->search#filter">
+
+    <select name="event" class="ral-filter-select" aria-label="Filter by event"
+            data-action="change->search#select">
+      <option value="">All events</option>
+      <% RailsAuditLog::AuditLogEntry::EVENTS.each do |event| %>
+        <option value="<%= event %>" <%= "selected" if @event == event %>><%= event.capitalize %></option>
+      <% end %>
+    </select>
+
+    <% if @item_types.size > 1 %>
+      <select name="item_type" class="ral-filter-select" aria-label="Filter by resource"
+              data-action="change->search#select">
+        <option value="">All resources</option>
+        <% @item_types.each do |type| %>
+          <option value="<%= type %>" <%= "selected" if @item_type == type %>><%= type %></option>
+        <% end %>
+      </select>
+    <% end %>
+
+    <div class="ral-period-filter" role="group" aria-label="Time period">
+      <%= link_to "All", audit_log_entries_path(event: @event, item_type: @item_type, q: @q),
+            class: "ral-period-btn#{" ral-period-btn--active" if @period.blank?}" %>
+      <% RailsAuditLog::AuditLogEntry::PERIODS.each_key do |p| %>
+        <%= link_to p, audit_log_entries_path(event: @event, item_type: @item_type, q: @q, period: p),
+              class: "ral-period-btn#{" ral-period-btn--active" if @period == p}" %>
+      <% end %>
+    </div>
+
+    <% if @event || @item_type || @period || @q %>
+      <%= link_to "Clear", audit_log_entries_path, class: "ral-link ral-filters__clear" %>
+    <% end %>
+  </form>
+
   <% if @entries.any? %>
     <div class="ral-table-wrap">
       <table class="ral-table">
@@ -19,7 +60,7 @@
           <% @entries.each do |entry| %>
             <tr>
               <td><span class="ral-badge ral-badge--<%= entry.event %>"><%= entry.event %></span></td>
-              <td><%= link_to "#{entry.item_type} ##{entry.item_id}", resource_audit_log_entries_path(item_type: entry.item_type, item_id: entry.item_id), class: "ral-link", data: { turbo_frame: "_top" } %></td>
+              <td><%= link_to "#{entry.item_type} ##{entry.item_id}", resource_path(item_type: entry.item_type, item_id: entry.item_id), class: "ral-link", data: { turbo_frame: "_top" } %></td>
               <td><%= entry.whodunnit_snapshot.presence || (entry.actor_type ? "#{entry.actor_type} \##{entry.actor_id}" : "—") %></td>
               <td class="ral-timestamp"><%= entry.created_at.utc.strftime("%Y-%m-%d %H:%M UTC") %></td>
             </tr>
@@ -30,6 +71,6 @@
 
     <%== @pagy.series_nav(aria_label: "Pagination") if @pagy.pages > 1 %>
   <% else %>
-    <p class="ral-empty">No audit entries yet.</p>
+    <p class="ral-empty">No audit entries found.</p>
   <% end %>
 <% end %>

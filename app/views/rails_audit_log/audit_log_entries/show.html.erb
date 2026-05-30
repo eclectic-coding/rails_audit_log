@@ -2,7 +2,7 @@
   <div>
     <p class="ral-breadcrumb">
       <%= link_to "Audit Entries", audit_log_entries_path, class: "ral-link" %> /
-      <%= link_to "#{@entry.item_type} ##{@entry.item_id}", resource_audit_log_entries_path(item_type: @entry.item_type, item_id: @entry.item_id), class: "ral-link" %>
+      <%= link_to "#{@entry.item_type} ##{@entry.item_id}", resource_path(item_type: @entry.item_type, item_id: @entry.item_id), class: "ral-link" %>
     </p>
     <h1 class="ral-page-header__title">Entry #<%= @entry.id %></h1>
   </div>
@@ -24,7 +24,7 @@
     </div>
     <div class="ral-meta__row">
       <dt>Resource</dt>
-      <dd><%= link_to "#{@entry.item_type} ##{@entry.item_id}", resource_audit_log_entries_path(item_type: @entry.item_type, item_id: @entry.item_id), class: "ral-link" %></dd>
+      <dd><%= link_to "#{@entry.item_type} ##{@entry.item_id}", resource_path(item_type: @entry.item_type, item_id: @entry.item_id), class: "ral-link" %></dd>
     </div>
     <% actor = @entry.whodunnit_snapshot.presence || (@entry.actor_type ? "#{@entry.actor_type} \##{@entry.actor_id}" : "—") %>
     <div class="ral-meta__row">

@@ -6,10 +6,7 @@
   box-shadow: var(--ral-shadow);
 }
 
-.ral-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+.ral-table { width: 100%; border-collapse: collapse; }
 
 .ral-table th {
   background: var(--ral-bg);

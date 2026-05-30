@@ -23,7 +23,7 @@
             <% end %>
             <%= link_to "Details →", audit_log_entry_path(entry), class: "ral-link ral-timeline__detail-link", data: { turbo_frame: "_top" } %>
           </div>
-          <%= render "diff", entry: entry %>
+          <%= render "rails_audit_log/audit_log_entries/diff", entry: entry %>
         </div>
       <% end %>
     </div>
