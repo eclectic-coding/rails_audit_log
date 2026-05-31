@@ -31,4 +31,11 @@ RailsAuditLog.configure do |config|
 
   # Number of entries per page in the web dashboard. Default: 25
   # config.page_size = 50
+
+  # Gate web dashboard access. Block runs in controller context — controller
+  # methods like current_user are available directly, or accept the controller
+  # as an argument. Falls back to HTTP Basic auth if the block returns falsy.
+  # Leave unset to allow unauthenticated access (development default).
+  # config.authenticate { current_user&.admin? }
+  # config.authenticate { |c| c.current_user&.admin? }
 end
