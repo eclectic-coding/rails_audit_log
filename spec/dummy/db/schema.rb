@@ -10,7 +10,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
     t.string  :whodunnit_snapshot
     t.string  :actor_type
     t.bigint  :actor_id
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime :created_at
   end
 
   add_index :audit_log_entries, [:item_type, :item_id]
@@ -19,39 +19,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
   add_index :audit_log_entries, :created_at
 
   create_table :posts, force: :cascade do |t|
-    t.string :title, null: false
-    t.text   :body
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime :updated_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.string   :title, null: false
+    t.text     :body
+    t.datetime :created_at
+    t.datetime :updated_at
   end
 
   create_table :users, force: :cascade do |t|
-    t.string :name
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime :updated_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.string   :name
+    t.datetime :created_at
+    t.datetime :updated_at
   end
 
   create_table :articles, force: :cascade do |t|
-    t.string :title, null: false
-    t.text   :body
-    t.string :status, default: "draft"
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime :updated_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.string   :title, null: false
+    t.text     :body
+    t.string   :status, default: "draft"
+    t.datetime :created_at
+    t.datetime :updated_at
   end
 
   create_table :comments, force: :cascade do |t|
-    t.text   :body
-    t.bigint :post_id, null: false
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime :updated_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.text     :body
+    t.bigint   :post_id, null: false
+    t.datetime :created_at
+    t.datetime :updated_at
   end
 
   add_index :comments, :post_id
 
   create_table :tags, force: :cascade do |t|
-    t.string :name, null: false
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime :updated_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.string   :name, null: false
+    t.datetime :created_at
+    t.datetime :updated_at
   end
 
   # HABTM join table for Post <-> Tag
@@ -64,10 +64,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
 
   # Join model for has_many :through
   create_table :taggings, force: :cascade do |t|
-    t.bigint :post_id, null: false
-    t.bigint :tag_id,  null: false
-    t.datetime :created_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime :updated_at, null: false, default: -> { "CURRENT_TIMESTAMP" }
+    t.bigint   :post_id, null: false
+    t.bigint   :tag_id,  null: false
+    t.datetime :created_at
+    t.datetime :updated_at
   end
 
   add_index :taggings, [:post_id, :tag_id], unique: true
