@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-05-31
+
 ### Added
 
 - `RailsAuditLog.retention_period = 90.days` — global time-based TTL; entries whose `created_at` is older than the configured duration are pruned automatically after each write; composes with `version_limit` — an entry is removed when it exceeds either constraint; `async` mode passes the period to `WriteAuditLogJob` so pruning happens inside the job
@@ -156,7 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.1.0
 [1.0.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.0.0
 [0.9.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.9.0
 [0.8.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.8.0
