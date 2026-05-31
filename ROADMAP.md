@@ -6,12 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 0.9.0 — Web dashboard
-
-> A mountable UI for browsing the audit trail.
-
-- Configurable authentication block: `RailsAuditLog.authenticate { |c| c.current_user&.admin? }`
-
 ---
 
 ## 1.0.0 — Stable public API & migration

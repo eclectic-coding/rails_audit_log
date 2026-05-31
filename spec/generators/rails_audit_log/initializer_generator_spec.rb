@@ -36,6 +36,7 @@ RSpec.describe RailsAuditLog::Generators::InitializerGenerator do
       expect(content).to include("async")
       expect(content).to include("connects_to")
       expect(content).to include("page_size")
+      expect(content).to include("authenticate")
     end
   end
 end
