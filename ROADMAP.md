@@ -6,13 +6,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 ---
 
-## 1.0.0 — Stable public API & migration
-
-> Production-ready with a documented upgrade path from PaperTrail.
-
-- CHANGELOG covering every public surface from 0.1 to 1.0
-
----
 
 ## 1.1.0 — Data retention policies
 
