@@ -78,9 +78,48 @@ jobs:
           RAILS_VERSION: ${{ matrix.rails }}
 
       - name: Upload coverage to Codecov
+        if: matrix.ruby == '4.0' && matrix.rails == '8.1'
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-mysql:
+    name: MySQL / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["4.0"]
+        rails: ["7.2", "8.0", "8.1"]
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: rails_audit_log_test
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+        env:
+          BUNDLE_WITH: db_mysql
+
+      - run: bundle exec rspec
+        env:
+          RAILS_VERSION: ${{ matrix.rails }}
+          DATABASE_URL: mysql2://root:mysql@127.0.0.1/rails_audit_log_test
 
   test-postgres:
     name: PostgreSQL / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
@@ -125,8 +164,3 @@ jobs:
         env:
           RAILS_VERSION: ${{ matrix.rails }}
           DATABASE_URL: postgresql://postgres:postgres@localhost/rails_audit_log_test
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
