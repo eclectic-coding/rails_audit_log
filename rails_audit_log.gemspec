@@ -6,10 +6,12 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Chuck Smith"]
   spec.email       = ["chuck@eclecticcoding.com"]
   spec.homepage    = "https://github.com/eclectic-coding/rails_audit_log"
-  spec.summary     = "Zeitwerk-native audit logging for ActiveRecord"
-  spec.description = "A modern Rails engine that tracks ActiveRecord create, update, and " \
-                     "destroy events with JSON-first storage, whodunnit actor context, and " \
-                     "a clean query API. Drop-in replacement for PaperTrail with no legacy baggage."
+  spec.summary     = "Audit logging for Rails with a web dashboard and JSON-first storage"
+  spec.description = "Rails engine that tracks ActiveRecord create, update, and destroy events " \
+                     "as structured JSON records. Ships a mountable web dashboard, whodunnit " \
+                     "actor context, batch inserts via insert_all!, async writes via ActiveJob, " \
+                     "time-travel reconstruction, RSpec matchers, Minitest assertions, and a " \
+                     "migration path from PaperTrail."
   spec.license     = "MIT"
 
   spec.required_ruby_version = ">= 3.3"
