@@ -539,6 +539,41 @@ Constants: `EVENTS`, `BLOB_COLUMNS`, `PERIODS`
 
 ---
 
+## Migrating from PaperTrail
+
+Run the migration generator to produce a timestamped data migration:
+
+```bash
+bin/rails generate rails_audit_log:migrate_from_paper_trail
+bin/rails db:migrate
+```
+
+The generated migration reads every row from PaperTrail's `versions` table and inserts it into `audit_log_entries`.
+
+### Column mapping
+
+| PaperTrail `versions` | `audit_log_entries` | Notes |
+|---|---|---|
+| `item_type` | `item_type` | Direct copy |
+| `item_id` | `item_id` | Direct copy |
+| `event` | `event` | `create` / `update` / `destroy` only; other values are skipped |
+| `object_changes` | `object_changes` | YAML or JSON → JSON (see below) |
+| `object` | `object` | YAML or JSON → JSON (see below) |
+| `whodunnit` | `whodunnit_snapshot` | PaperTrail stores actor as a plain string |
+| `created_at` | `created_at` | Direct copy |
+| — | `actor_type` / `actor_id` | **Not populated** — cannot be inferred from a string `whodunnit` |
+
+### YAML and JSON serialization
+
+PaperTrail serializes `object` and `object_changes` as **YAML** by default and as **JSON** when `PaperTrail.serializer = PaperTrail::Serializers::JSON` is configured. The migration handles both transparently — it tries JSON first, then falls back to YAML (with a permissive class list for the Ruby types PaperTrail commonly serializes).
+
+### What is not migrated
+
+- `versions` rows with an `event` value outside `create`, `update`, `destroy` (custom events added by some apps)
+- `actor_type` and `actor_id` — PaperTrail's `whodunnit` is a plain string and does not identify the actor model
+
+---
+
 ## Companion gems
 
 > Coming in the 1.x series
