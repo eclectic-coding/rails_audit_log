@@ -1,28 +1,55 @@
 <% changes = entry.object_changes.presence %>
 <% if changes %>
-  <table class="ral-diff">
-    <thead>
-      <tr>
-        <th>Attribute</th>
-        <th>Before</th>
-        <th>After</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% changes.each do |attr, (before, after)| %>
+  <div class="ral-diff-wrap" data-controller="diff">
+    <div class="ral-diff-toggle">
+      <button class="ral-diff-btn ral-diff-btn--active"
+              data-diff-target="inlineBtn"
+              data-action="click->diff#setInline">Inline</button>
+      <button class="ral-diff-btn"
+              data-diff-target="sideBtn"
+              data-action="click->diff#setSide">Side by side</button>
+    </div>
+
+    <table class="ral-diff" data-diff-target="inline">
+      <thead>
         <tr>
-          <td class="ral-diff__attr"><%= attr %></td>
-          <% if before.is_a?(Hash) || after.is_a?(Hash) %>
-            <td class="ral-diff__before"><%= before ? "#{before["type"]} ##{before["id"]}" : "—" %></td>
-            <td class="ral-diff__after"><%= after  ? "#{after["type"]} ##{after["id"]}"   : "—" %></td>
-          <% else %>
-            <td class="ral-diff__before"><%= before.nil? ? "—" : before.inspect %></td>
-            <td class="ral-diff__after"><%= after.nil?  ? "—" : after.inspect  %></td>
-          <% end %>
+          <th>Attribute</th>
+          <th>Before</th>
+          <th>After</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% changes.each do |attr, (before, after)| %>
+          <tr>
+            <td class="ral-diff__attr"><%= attr %></td>
+            <td class="ral-diff__before"><%= format_diff_value(before) %></td>
+            <td class="ral-diff__after"><%= format_diff_value(after) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="ral-diff-side" data-diff-target="side" hidden>
+      <div class="ral-diff-side__panel ral-diff-side__panel--before">
+        <div class="ral-diff-side__header">Before</div>
+        <% changes.each do |attr, (before, _after)| %>
+          <div class="ral-diff-side__row">
+            <span class="ral-diff-side__attr"><%= attr %></span>
+            <span class="ral-diff-side__value"><%= format_diff_value(before) %></span>
+          </div>
+        <% end %>
+      </div>
+      <div class="ral-diff-side__panel ral-diff-side__panel--after">
+        <div class="ral-diff-side__header">After</div>
+        <% changes.each do |attr, (_before, after)| %>
+          <div class="ral-diff-side__row">
+            <span class="ral-diff-side__attr"><%= attr %></span>
+            <span class="ral-diff-side__value"><%= format_diff_value(after) %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
 <% else %>
   <p class="ral-muted">No changes recorded.</p>
 <% end %>
