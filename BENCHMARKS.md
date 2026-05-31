@@ -1,15 +1,16 @@
 # Benchmarks
 
-Performance measurements for `rails_audit_log` compared against PaperTrail.
+Performance measurements for `rails_audit_log` compared directly against PaperTrail 17.
 
 ## Reference environment
 
-| | |
-|---|---|
-| Ruby | 4.0.5 |
-| Rails | 8.1.3 |
-| Database | SQLite (development) |
-| Hardware | Apple M-series (arm64-darwin) |
+| Item      | Value                         |
+|-----------|-------------------------------|
+| Ruby      | 4.0.5                         |
+| Rails     | 8.1.3                         |
+| Database  | SQLite (development)          |
+| PaperTrail | 17.0.0                       |
+| Hardware  | Apple M-series (arm64-darwin) |
 
 ## Running the suite
 
@@ -19,67 +20,51 @@ bundle exec ruby benchmarks/suite.rb
 bundle exec rake dev:reset          # restore seeds afterwards
 ```
 
----
-
-## 1. Write throughput (individual)
-
-| Operation | Throughput | vs raw insert |
-|---|---|---|
-| Raw `AuditLogEntry.create!` (no concern) | ~1 390 i/s | baseline |
-| `Post.create!` via `Auditable` | ~797 i/s | 1.7× overhead |
-| `post.update!` via `Auditable` | ~645 i/s | 2.2× overhead |
-
-The overhead comes from ActiveRecord callbacks (saved_changes, filter logic, entry creation). PaperTrail has comparable overhead — both call `after_create`/`after_update` callbacks that perform a second database write.
-
-## 2. batch_audit vs individual writes
-
-| Mode | Throughput (50 records) | Speedup |
-|---|---|---|
-| Individual writes | ~42 i/s | baseline |
-| `RailsAuditLog.batch_audit { }` | ~71 i/s | **1.7× faster** |
-
-`batch_audit` replaces N individual `INSERT` statements with a single `INSERT ... VALUES (…), (…), …` via `insert_all!`. The speedup grows with batch size.
-
-## 3. Query performance
-
-| Query | Throughput |
-|---|---|
-| `AuditLogEntry.order(created_at: :desc).limit(25)` | ~7 700 i/s |
-| `.slim.order(created_at: :desc).limit(25)` | ~6 400 i/s |
-| `record.audit_log_entries` (AR proxy, not yet loaded) | ~2 000 000 i/s |
-
-`.slim` excludes the three JSON blob columns (`object_changes`, `object`, `metadata`) from the `SELECT`. The throughput difference vs the full query reflects I/O and JSON deserialization savings; the gain grows significantly on rows with large blobs.
-
-## 4. Storage per entry
-
-| Format | Avg bytes (object_changes + object) |
-|---|---|
-| `rails_audit_log` (JSON) | ~149 bytes |
-| PaperTrail (YAML) | ~200–220 bytes (estimated) |
-
-JSON is typically **30–50% smaller** than the equivalent YAML. For a table with millions of entries this compounds into meaningful storage savings.
-
-## 5. Time-travel reconstruction (`version_at`)
-
-| Operation | Throughput |
-|---|---|
-| `RailsAuditLog.version_at(record, time)` | ~5 700 i/s |
-
-One indexed query (`WHERE item_type = ? AND item_id = ? AND created_at <= ?`) plus Ruby-level attribute assignment. Performance is dominated by the database round-trip.
+The suite compares `rails_audit_log` against PaperTrail side-by-side in every section. Each library's callbacks are disabled during the other's measurement so only one auditing system writes per data point.
 
 ---
 
-## Comparing against PaperTrail
+## 1. Write throughput: create
 
-The benchmark suite does not require PaperTrail to be installed. To add a direct comparison:
+| Library          | Throughput  | vs PaperTrail      |
+|------------------|-------------|--------------------|
+| `rails_audit_log` | ~773 i/s   | **1.18× faster**   |
+| PaperTrail       | ~657 i/s    | baseline           |
 
-1. Add `gem "paper_trail"` to your Gemfile and run `bundle install`.
-2. Include `has_paper_trail` on the `Post` model in `spec/dummy/app/models/post.rb`.
-3. Add PaperTrail benchmark blocks inside `benchmarks/suite.rb` matching the same operations.
+## 2. Write throughput: update
 
-In general, `rails_audit_log` and PaperTrail have comparable write overhead because both use ActiveRecord callbacks. `rails_audit_log` advantages are:
+| Library          | Throughput   | vs PaperTrail     |
+|------------------|--------------|-------------------|
+| `rails_audit_log` | ~2 060 i/s  | **1.32× faster**  |
+| PaperTrail       | ~1 562 i/s   | baseline          |
 
-- **Smaller storage** — JSON vs YAML
-- **`batch_audit`** — single `INSERT` for bulk operations (no PaperTrail equivalent)
-- **`.slim` scope** — skip blob columns on index queries
-- **`async: true`** — non-blocking writes via ActiveJob (no PaperTrail equivalent)
+Both libraries write a second row on every tracked change via `after_create`/`after_update` callbacks. The overhead is inherent to the approach. `rails_audit_log` is faster because it skips PaperTrail's YAML serialization and metadata lookups.
+
+## 3. 50 creates: `batch_audit` vs PaperTrail
+
+| Mode                                          | Throughput   | vs PaperTrail     |
+|-----------------------------------------------|--------------|-------------------|
+| `rails_audit_log` — `batch_audit` (1 INSERT)  | ~71 i/s      | **2.00× faster**  |
+| `rails_audit_log` — individual (N INSERTs)    | ~43 i/s      | 1.21× faster      |
+| PaperTrail — individual (N INSERTs)           | ~36 i/s      | baseline          |
+
+`batch_audit` replaces N individual `INSERT` statements with a single `INSERT ... VALUES (…), (…), …` via `insert_all!`. The speedup grows with batch size. PaperTrail has no equivalent.
+
+## 4. Query performance: last 25 entries
+
+| Query                                                       | Throughput  | vs PaperTrail    |
+|-------------------------------------------------------------|-------------|------------------|
+| `AuditLogEntry.order(created_at: :desc).limit(25)`          | ~7 219 i/s  | **1.23× faster** |
+| `.slim.order(created_at: :desc).limit(25)`                  | ~6 668 i/s  | 1.14× faster     |
+| `PaperTrail::Version.order(created_at: :desc).limit(25)`    | ~5 852 i/s  | baseline         |
+
+`.slim` excludes the three JSON blob columns (`object_changes`, `object`, `metadata`) from the `SELECT`. On rows with large blobs the gain grows significantly; on small rows it is similar to a full select.
+
+## 5. Storage per entry
+
+| Library           | Avg bytes  | Median bytes | Format |
+|-------------------|------------|--------------|--------|
+| `rails_audit_log` | ~135 bytes | ~135 bytes   | JSON   |
+| PaperTrail        | ~336 bytes | ~336 bytes   | YAML   |
+
+**~60% smaller** per entry with `rails_audit_log`. JSON is more compact than YAML and skips PaperTrail's `---\n- ruby/object:...` envelope. For a table with millions of entries this compounds into meaningful storage and I/O savings.

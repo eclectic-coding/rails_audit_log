@@ -22,6 +22,7 @@ gem "bundler-audit", require: false
 
 group :development do
   gem "benchmark-ips", require: false
+  gem "paper_trail",   require: false
 end
 
 group :test do

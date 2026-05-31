@@ -4,36 +4,49 @@
 # RailsAuditLog performance benchmark suite
 #
 # Usage:
-#   bundle exec ruby benchmarks/suite.rb
-#
-# Requires the dummy app database to exist:
 #   bundle exec rake dev:setup
+#   bundle exec ruby benchmarks/suite.rb
+#   bundle exec rake dev:reset   # restore seeds afterwards
 #
-# Optional PaperTrail comparison:
-#   Add gem "paper_trail" to the Gemfile, run bundle install, then re-run.
-#   PaperTrail::Version must use the audit_log_entries table alias, or
-#   configure a separate :paper_trail_versions table.
+# PaperTrail is loaded automatically when present (development group).
+# Benchmarks isolate each library using disable blocks so only one
+# auditing system writes per measurement.
 
 require "benchmark/ips"
 require_relative "../spec/dummy/config/environment"
+# PaperTrail must load after Rails env. Its Railtie won't fire post-boot,
+# so we manually require the AR framework to define PaperTrail::Version.
+require "paper_trail"
+require "paper_trail/frameworks/active_record"
 
 ActiveRecord::Base.logger = nil  # suppress SQL noise
 
-ITERATIONS = 500
-
 puts "=" * 60
-puts "RailsAuditLog Benchmark Suite"
-puts "Ruby    #{RUBY_VERSION}"
-puts "Rails   #{Rails.version}"
-puts "Adapter #{ActiveRecord::Base.connection.adapter_name}"
+puts "RailsAuditLog vs PaperTrail Benchmark Suite"
+puts "Ruby      #{RUBY_VERSION}"
+puts "Rails     #{Rails.version}"
+puts "Adapter   #{ActiveRecord::Base.connection.adapter_name}"
+puts "PaperTrail #{PaperTrail::VERSION}"
 puts "=" * 60
 puts
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def cleanup
   RailsAuditLog::AuditLogEntry.delete_all
+  PaperTrail::Version.delete_all
   Post.delete_all
+end
+
+def without_paper_trail(&block)
+  PaperTrail.enabled = false
+  block.call
+ensure
+  PaperTrail.enabled = true
+end
+
+def without_rails_audit_log(&block)
+  RailsAuditLog.disable(&block)
 end
 
 def median(values)
@@ -42,34 +55,26 @@ def median(values)
   sorted.size.odd? ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2.0
 end
 
-# ── 1. Write throughput ───────────────────────────────────────────────────────
+# ── 1. Write throughput — create ─────────────────────────────────────────────
 
-puts "── 1. Write throughput (individual) ──"
+puts "── 1. Write throughput: create ──"
 cleanup
 
 Benchmark.ips do |bm|
   bm.config(time: 5, warmup: 1)
 
-  bm.report("create (sync)") do
-    RailsAuditLog.disable { Post.create!(title: "bench") }.tap do |p|
-      RailsAuditLog::AuditLogEntry.create!(
-        event: "create", item_type: "Post", item_id: p.id,
-        object_changes: { "title" => [nil, "bench"] }
-      )
-      p.delete
-      RailsAuditLog::AuditLogEntry.where(item_id: p.id, item_type: "Post").delete_all
+  bm.report("rails_audit_log — create") do
+    without_paper_trail do
+      p = Post.create!(title: "bench")
+      p.destroy!
     end
   end
 
-  bm.report("create via Auditable") do
-    p = Post.create!(title: "bench")
-    p.destroy!
-  end
-
-  bm.report("update via Auditable") do
-    p = RailsAuditLog.disable { Post.create!(title: "x") }
-    p.update!(title: "y")
-    p.destroy!
+  bm.report("paper_trail       — create") do
+    without_rails_audit_log do
+      p = Post.create!(title: "bench")
+      p.destroy!
+    end
   end
 
   bm.compare!
@@ -77,26 +82,23 @@ end
 
 puts
 
-# ── 2. Batch audit ───────────────────────────────────────────────────────────
+# ── 2. Write throughput — update ─────────────────────────────────────────────
 
-puts "── 2. batch_audit vs individual writes ──"
+puts "── 2. Write throughput: update ──"
 cleanup
+
+ral_post = without_paper_trail { RailsAuditLog.disable { Post.create!(title: "ral") } }
+pt_post  = without_rails_audit_log { PaperTrail.enabled = false; p = Post.create!(title: "pt"); PaperTrail.enabled = true; p }
 
 Benchmark.ips do |bm|
   bm.config(time: 5, warmup: 1)
 
-  bm.report("50 creates — individual") do
-    50.times { |i| Post.create!(title: "Post #{i}") }
-    Post.delete_all
-    RailsAuditLog::AuditLogEntry.where(item_type: "Post").delete_all
+  bm.report("rails_audit_log — update") do
+    without_paper_trail { ral_post.update!(title: "x#{rand}") }
   end
 
-  bm.report("50 creates — batch_audit") do
-    RailsAuditLog.batch_audit do
-      50.times { |i| Post.create!(title: "Post #{i}") }
-    end
-    Post.delete_all
-    RailsAuditLog::AuditLogEntry.where(item_type: "Post").delete_all
+  bm.report("paper_trail       — update") do
+    without_rails_audit_log { pt_post.update!(title: "x#{rand}") }
   end
 
   bm.compare!
@@ -104,31 +106,63 @@ end
 
 puts
 
-# ── 3. Query performance ─────────────────────────────────────────────────────
+# ── 3. batch_audit vs PaperTrail bulk ────────────────────────────────────────
 
-puts "── 3. Query performance ──"
+puts "── 3. 50 creates: batch_audit vs PaperTrail ──"
 cleanup
-
-# Seed data
-RailsAuditLog.batch_audit do
-  100.times { |i| Post.create!(title: "Post #{i}") }
-end
 
 Benchmark.ips do |bm|
   bm.config(time: 5, warmup: 1)
 
+  bm.report("rails_audit_log — batch_audit (1 INSERT)") do
+    without_paper_trail do
+      RailsAuditLog.batch_audit { 50.times { |i| Post.create!(title: "Post #{i}") } }
+    end
+    Post.delete_all
+    RailsAuditLog::AuditLogEntry.delete_all
+  end
+
+  bm.report("rails_audit_log — individual (N INSERTs)") do
+    without_paper_trail { 50.times { |i| Post.create!(title: "Post #{i}") } }
+    Post.delete_all
+    RailsAuditLog::AuditLogEntry.delete_all
+  end
+
+  bm.report("paper_trail       — individual (N INSERTs)") do
+    without_rails_audit_log { 50.times { |i| Post.create!(title: "Post #{i}") } }
+    Post.delete_all
+    PaperTrail::Version.delete_all
+  end
+
+  bm.compare!
+end
+
+puts
+
+# ── 4. Query performance ─────────────────────────────────────────────────────
+
+puts "── 4. Query performance: last 25 entries ──"
+cleanup
+
+without_paper_trail do
+  RailsAuditLog.batch_audit { 100.times { |i| Post.create!(title: "Post #{i}") } }
+end
+without_rails_audit_log { 100.times { |i| Post.create!(title: "Post #{i}") } }
+
+Benchmark.ips do |bm|
+  bm.config(time: 5, warmup: 1)
   post = Post.first
 
-  bm.report("AuditLogEntry.order(created_at: :desc).limit(25)") do
+  bm.report("rails_audit_log — AuditLogEntry.order.limit(25)") do
     RailsAuditLog::AuditLogEntry.order(created_at: :desc).limit(25).load
   end
 
-  bm.report("record.audit_log_entries (all for one record)") do
-    post.audit_log_entries.load
+  bm.report("rails_audit_log — .slim.order.limit(25)") do
+    RailsAuditLog::AuditLogEntry.slim.order(created_at: :desc).limit(25).load
   end
 
-  bm.report(".slim.order(created_at: :desc).limit(25)") do
-    RailsAuditLog::AuditLogEntry.slim.order(created_at: :desc).limit(25).load
+  bm.report("paper_trail       — Version.order.limit(25)") do
+    PaperTrail::Version.order(created_at: :desc).limit(25).load
   end
 
   bm.compare!
@@ -136,40 +170,36 @@ end
 
 puts
 
-# ── 4. Storage efficiency ────────────────────────────────────────────────────
+# ── 5. Storage per entry ─────────────────────────────────────────────────────
 
-puts "── 4. Storage per audit entry ──"
+puts "── 5. Storage per entry ──"
 cleanup
 
-100.times { |i| Post.create!(title: "Benchmark Post #{i}", body: "Some body text for post #{i}.") }
-
-total_entries = RailsAuditLog::AuditLogEntry.count
-sample = RailsAuditLog::AuditLogEntry.limit(50).map do |e|
-  e.object_changes.to_json.bytesize + (e.object.to_json.bytesize rescue 0)
+without_paper_trail do
+  50.times { |i| Post.create!(title: "Benchmark Post #{i}", body: "Body text #{i}.") }
+end
+without_rails_audit_log do
+  50.times { |i| Post.create!(title: "Benchmark Post #{i}", body: "Body text #{i}.") }
 end
 
-avg_bytes = sample.sum.to_f / sample.size
-puts "  Entries sampled : #{[sample.size, total_entries].min}"
-puts "  Avg object_changes + object (JSON): #{avg_bytes.round(1)} bytes"
-puts "  Median: #{median(sample).round(1)} bytes"
-puts "  Note: PaperTrail stores the same data as YAML (~30-50% larger)"
-puts
-
-# ── 5. version_at ────────────────────────────────────────────────────────────
-
-puts "── 5. version_at (time-travel reconstruction) ──"
-
-post = Post.first
-10.times { |i| post.update!(title: "v#{i + 2}") }
-
-Benchmark.ips do |bm|
-  bm.config(time: 3, warmup: 1)
-  t = Time.current
-
-  bm.report("RailsAuditLog.version_at(record, time)") do
-    RailsAuditLog.version_at(post, t)
-  end
+ral_sample = RailsAuditLog::AuditLogEntry.limit(50).map do |e|
+  e.object_changes.to_json.bytesize + e.object.to_json.bytesize
 end
 
+pt_sample = PaperTrail::Version.limit(50).map do |v|
+  (v.read_attribute_before_type_cast(:object_changes).to_s.bytesize +
+   v.read_attribute_before_type_cast(:object).to_s.bytesize)
+end
+
+puts "  rails_audit_log  avg: #{(ral_sample.sum.to_f / ral_sample.size).round(1)} bytes  " \
+     "median: #{median(ral_sample).round(1)} bytes  (JSON)"
+puts "  paper_trail       avg: #{(pt_sample.sum.to_f / pt_sample.size).round(1)} bytes  " \
+     "median: #{median(pt_sample).round(1)} bytes  (YAML)"
+
+ral_avg = ral_sample.sum.to_f / ral_sample.size
+pt_avg  = pt_sample.sum.to_f / pt_sample.size
+savings = ((pt_avg - ral_avg) / pt_avg * 100).round(1)
+puts "  Storage savings: #{savings}% smaller with rails_audit_log"
 puts
+
 puts "Done. Run `bundle exec rake dev:reset` to restore the development database."
