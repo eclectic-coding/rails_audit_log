@@ -1,4 +1,5 @@
 module RailsAuditLog
+  # @api private
   class ResourcesController < ApplicationController
     def show
       @item_type = params[:item_type]

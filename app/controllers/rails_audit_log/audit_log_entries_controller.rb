@@ -1,4 +1,5 @@
 module RailsAuditLog
+  # @api private
   class AuditLogEntriesController < ApplicationController
     def index
       set_filters

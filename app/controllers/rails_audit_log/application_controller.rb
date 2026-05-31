@@ -1,4 +1,5 @@
 module RailsAuditLog
+  # @api private
   class ApplicationController < ActionController::Base
     include Pagy::Method
 
