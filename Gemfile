@@ -20,6 +20,10 @@ gem "rubocop-rails-omakase", require: false
 
 gem "bundler-audit", require: false
 
+group :development do
+  gem "benchmark-ips", require: false
+end
+
 group :test do
   gem "rspec-rails"
   gem "simplecov", require: false

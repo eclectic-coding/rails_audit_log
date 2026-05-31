@@ -16,6 +16,11 @@ end
 
 task default: ["bundle:audit:update", "bundle:audit:check", :rubocop, :zeitwerk, :spec]
 
+desc "Run the performance benchmark suite (requires dev:setup first)"
+task :benchmark do
+  sh "bundle exec ruby benchmarks/suite.rb"
+end
+
 # Development database tasks (operate on spec/dummy)
 namespace :dev do
   dummy_env = { "RAILS_ENV" => "development" }

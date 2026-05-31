@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Performance benchmark suite (`benchmarks/suite.rb`) covering write throughput, `batch_audit` vs individual writes, query performance, storage per entry, and `version_at`; run with `bundle exec rake benchmark`; results documented in `BENCHMARKS.md`
 - `RailsAuditLog::PaperTrailCompat` — opt-in concern for gradual migration from PaperTrail; adds `versions` association (oldest-first alias for `audit_log_entries`) and a `paper_trail` proxy exposing `#version`, `#previous_version`, `#originator`, and `#version_at(time)`
 - `bin/rails generate rails_audit_log:migrate_from_paper_trail` — data migration generator that copies PaperTrail `versions` rows to `audit_log_entries`; handles both YAML and JSON serialization; maps `whodunnit` to `whodunnit_snapshot`; processes in batches of 1 000; skips non-standard events; irreversible
 - Stable public API documented in README with full surface inventory (module methods, concerns, scopes, instance methods, testing helpers, generators) and semver guarantee; internal classes annotated `@api private` (Engine, dashboard controllers, ApplicationRecord, ApplicationJob, ApplicationHelper)
