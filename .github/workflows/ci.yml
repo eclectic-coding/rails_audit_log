@@ -116,6 +116,13 @@ jobs:
         env:
           BUNDLE_WITH: db_mysql
 
+      # MySQL 8 defaults include NO_ZERO_DATE which rejects t.timestamps
+      # (datetime NOT NULL, no default) at DDL time. Set a permissive mode.
+      - name: Configure MySQL sql_mode
+        run: >
+          mysql -h 127.0.0.1 -u root -pmysql -e
+          "SET GLOBAL sql_mode='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';"
+
       - run: bundle exec rspec
         env:
           RAILS_VERSION: ${{ matrix.rails }}
