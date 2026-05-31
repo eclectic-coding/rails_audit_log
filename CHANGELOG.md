@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-05-30
+
 ### Added
 
 - `RailsAuditLog.authenticate { current_user&.admin? }` — configurable authentication block for the web dashboard; block runs in controller context so controller helpers are available directly; `{ |c| c.current_user&.admin? }` style also supported; falls back to HTTP Basic auth when the block returns falsy; leave unset to allow unauthenticated access
@@ -131,7 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.9.0
 [0.8.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.8.0
 [0.7.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.7.0
 [0.6.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.6.0
