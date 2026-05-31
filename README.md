@@ -23,6 +23,7 @@ Audit logging for Rails. Tracks `create`, `update`, and `destroy` events as stru
   - [Bulk audit writes](#bulk-audit-writes)
   - [Async audit writes](#async-audit-writes)
   - [Capping history per record](#capping-history-per-record)
+  - [Time-based retention](#time-based-retention)
   - [Selective tracking](#selective-tracking)
   - [Disabling auditing](#disabling-auditing)
   - [Object reconstruction](#object-reconstruction)
@@ -94,6 +95,11 @@ RailsAuditLog.configure do |config|
   # Global cap on entries retained per tracked record. nil = no limit.
   # Per-model `audit_log version_limit: N` takes precedence.
   # config.version_limit = 100
+
+  # Global time-based TTL — entries older than this duration are pruned after
+  # each write. Composes with version_limit: an entry is removed when it
+  # exceeds either constraint. Default: nil (no TTL)
+  # config.retention_period = 90.days
 
   # Write all audit entries asynchronously via WriteAuditLogJob.
   # Default: false — per-model `audit_log async: true` also works.
@@ -322,6 +328,17 @@ Set a global default in an initializer — per-model values take precedence:
 # config/initializers/rails_audit_log.rb
 RailsAuditLog.version_limit = 50
 ```
+
+### Time-based retention
+
+Automatically prune entries older than a configured duration by setting `retention_period` in an initializer:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.retention_period = 90.days
+```
+
+Entries whose `created_at` is older than the period are deleted after each write. `retention_period` and `version_limit` compose — an entry is pruned when it exceeds **either** constraint.
 
 ### Selective tracking
 
@@ -575,7 +592,7 @@ refute_audit_log_entry post, event: :destroy
 | `.connects_to=` | Route `AuditLogEntry` to a separate database |
 | `.page_size=` | Entries per page in the web dashboard |
 | `.whodunnit_display=` | Proc for actor display name snapshot |
-| `.retention_period=` | _(1.1.0)_ Global time-based TTL |
+| `.retention_period=` | Global time-based TTL for audit entries |
 
 **Concerns**
 
