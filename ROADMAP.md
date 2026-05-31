@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > A mountable UI for browsing the audit trail.
 
-- Diff display: side-by-side or inline attribute-level change highlighting
 - Configurable authentication block: `RailsAuditLog.authenticate { |c| c.current_user&.admin? }`
 
 ---
