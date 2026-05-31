@@ -472,6 +472,16 @@ expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update)
 expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update).touching(:title)
 ```
 
+## Companion gems
+
+> Coming in the 1.x series
+
+| Gem | What it adds |
+|---|---|
+| `rails_audit_log-graphql` | Mountable GraphQL endpoint at `/audit/graphql` — queryable audit trail for API-first apps without forcing `graphql-ruby` on users who don't need it |
+
+Each companion gem declares `rails_audit_log` as a dependency so you only add what you use.
+
 ## Requirements
 
 - Ruby >= 3.3
