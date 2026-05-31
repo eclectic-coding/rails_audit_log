@@ -11,6 +11,7 @@ A modern, Zeitwerk-native Rails engine for auditing ActiveRecord changes. Tracks
 ## Table of contents
 
 - [Installation](#installation)
+- [Configuration](#configuration)
 - [Web dashboard](#web-dashboard)
 - [Usage](#usage)
   - [Tracking a model](#tracking-a-model)
@@ -55,13 +56,60 @@ bin/rails generate rails_audit_log:install
 bin/rails db:migrate
 ```
 
-Optionally scaffold a commented initializer with every configuration option:
+## Configuration
+
+Run the initializer generator to create `config/initializers/rails_audit_log.rb` with every option documented as a commented example:
 
 ```bash
 bin/rails generate rails_audit_log:initializer
 ```
 
-This creates `config/initializers/rails_audit_log.rb` with all settings documented as commented examples inside a `RailsAuditLog.configure` block.
+The generated file (shown below with all options) uses the block-style `configure` API. Every setting has a sensible default — uncomment only what you need:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+
+RailsAuditLog.configure do |config|
+  # Global columns excluded from all audited models.
+  # Default: ["updated_at"]
+  # config.ignored_attributes = %w[updated_at cached_at]
+
+  # Store a full attribute snapshot alongside object_changes.
+  # Default: true
+  # Disable to save storage; reify and version_at fall back to diff-only reconstruction.
+  # config.store_snapshot = false
+
+  # Capture remote_ip and user_agent into each entry's metadata column.
+  # Default: false — requires RailsAuditLog::Controller in ApplicationController.
+  # config.capture_request_metadata = true
+
+  # Customise how the actor's display name is stored at write time.
+  # Default: actor.name if available, otherwise actor.to_s
+  # config.whodunnit_display = ->(actor) { actor.email }
+
+  # Global cap on entries retained per tracked record. nil = no limit.
+  # Per-model `audit_log version_limit: N` takes precedence.
+  # config.version_limit = 100
+
+  # Write all audit entries asynchronously via WriteAuditLogJob.
+  # Default: false — per-model `audit_log async: true` also works.
+  # config.async = true
+
+  # Route AuditLogEntry to a dedicated database (Rails multi-DB).
+  # config.connects_to = { database: { writing: :audit_log, reading: :audit_log } }
+
+  # Entries per page in the web dashboard. Default: 25
+  # config.page_size = 50
+
+  # Gate web dashboard access. Block runs in controller context so controller
+  # helpers like current_user are available directly. Falls back to HTTP Basic
+  # auth when the block returns falsy. Leave unset for unauthenticated access.
+  # config.authenticate { current_user&.admin? }
+  # config.authenticate { |c| c.current_user&.admin? }
+end
+```
+
+Each option is documented in detail in its own Usage section below.
 
 ## Web dashboard
 
