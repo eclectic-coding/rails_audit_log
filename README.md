@@ -340,6 +340,15 @@ RailsAuditLog.retention_period = 90.days
 
 Entries whose `created_at` is older than the period are deleted after each write. `retention_period` and `version_limit` compose — an entry is pruned when it exceeds **either** constraint.
 
+Override the global default per model with `retain_for:`:
+
+```ruby
+class Post < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log retain_for: 30.days  # takes precedence over RailsAuditLog.retention_period
+end
+```
+
 ### Selective tracking
 
 Track only specific attributes, or exclude noisy ones:
@@ -598,7 +607,7 @@ refute_audit_log_entry post, event: :destroy
 
 | Class | Include in | Key methods |
 |---|---|---|
-| `RailsAuditLog::Auditable` | ActiveRecord models | `audit_log(only:, ignore:, meta:, associations:, version_limit:, async:)`, `skip_audit_log { }` |
+| `RailsAuditLog::Auditable` | ActiveRecord models | `audit_log(only:, ignore:, meta:, associations:, version_limit:, retain_for:, async:)`, `skip_audit_log { }` |
 | `RailsAuditLog::Controller` | ActionController | `audit_log_actor { }` |
 
 **Model — `RailsAuditLog::AuditLogEntry`**

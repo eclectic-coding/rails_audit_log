@@ -28,6 +28,7 @@ module RailsAuditLog
       class_attribute :_audit_log_meta,           default: nil
       class_attribute :_audit_log_associations,   default: nil
       class_attribute :_audit_log_version_limit,  default: nil
+      class_attribute :_audit_log_retain_for,     default: nil
       class_attribute :_audit_log_async,          default: false
 
       _warn_if_audit_table_missing
@@ -105,6 +106,9 @@ module RailsAuditLog
       # @param version_limit [Integer, nil] maximum number of entries to retain
       #   per record; oldest entries are pruned after each write; overrides
       #   {RailsAuditLog.version_limit} for this model
+      # @param retain_for [ActiveSupport::Duration, nil] per-model time-based TTL;
+      #   entries older than this duration are pruned after each write; overrides
+      #   {RailsAuditLog.retention_period} for this model
       # @param async [Boolean, nil] when +true+, writes are dispatched via
       #   +WriteAuditLogJob+; overrides {RailsAuditLog.async} for this model
       # @return [void]
@@ -114,14 +118,16 @@ module RailsAuditLog
       #     audit_log only: %i[title body published_at],
       #               meta: { tenant_id: -> { Current.tenant_id } },
       #               associations: %i[tags],
-      #               version_limit: 100
+      #               version_limit: 100,
+      #               retain_for: 30.days
       #   end
-      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, async: nil)
+      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, retain_for: nil, async: nil)
         self._audit_log_only          = only.map(&:to_s)   if only
         self._audit_log_ignore        = ignore.map(&:to_s) if ignore
         self._audit_log_meta          = meta                if meta
         self._audit_log_associations  = associations        unless associations.nil?
         self._audit_log_version_limit = version_limit       unless version_limit.nil?
+        self._audit_log_retain_for    = retain_for          unless retain_for.nil?
         self._audit_log_async         = async               unless async.nil?
       end
     end
@@ -200,7 +206,7 @@ module RailsAuditLog
         buffer << entry_attrs.stringify_keys.merge("created_at" => Time.current)
       elsif _audit_log_async || RailsAuditLog.async
         limit  = self.class._audit_log_version_limit || RailsAuditLog.version_limit
-        period = RailsAuditLog.retention_period
+        period = self.class._audit_log_retain_for || RailsAuditLog.retention_period
         WriteAuditLogJob.perform_later(entry_attrs.stringify_keys, version_limit: limit, retention_period: period)
       else
         RailsAuditLog::AuditLogEntry.create!(entry_attrs)
@@ -210,7 +216,7 @@ module RailsAuditLog
 
     def prune_audit_entries
       limit  = self.class._audit_log_version_limit || RailsAuditLog.version_limit
-      period = RailsAuditLog.retention_period
+      period = self.class._audit_log_retain_for || RailsAuditLog.retention_period
       return unless limit || period
 
       if period
