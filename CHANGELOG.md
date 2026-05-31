@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- CHANGELOG audited for completeness across the full 0.x series; added missing `AuditLogEntry.for_period` entry (0.9.0) and deprecation notice for `.creates`/`.updates`/`.destroys` short aliases (0.2.0)
 - Full YARD API documentation for every public class, module, method, configuration option, and scope; covers `RailsAuditLog` module methods, `Auditable`, `Controller`, `AuditLogEntry`, `Matchers`, `MinitestAssertions`, `TestHelpers`, and `PaperTrailCompat`; internal methods annotated `@api private`
 - Performance benchmark suite (`benchmarks/suite.rb`) covering write throughput, `batch_audit` vs individual writes, query performance, storage per entry; each section compares directly against PaperTrail side-by-side using `benchmark-ips`; run with `bundle exec rake benchmark`; results documented in `BENCHMARKS.md`
 - `RailsAuditLog::PaperTrailCompat` — opt-in concern for gradual migration from PaperTrail; adds `versions` association (oldest-first alias for `audit_log_entries`) and a `paper_trail` proxy exposing `#version`, `#previous_version`, `#originator`, and `#version_at(time)`
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mountable web dashboard at a configurable path via `mount RailsAuditLog::Engine, at: "/audit"`; engine routes define a root and `audit_log_entries` index and show endpoints
 - Asset delivery via propshaft, importmaps, and CDN-pinned `@hotwired/turbo` and `@hotwired/stimulus`; no inline style injection, no host app asset pipeline conflict
 - `turbo-rails` and `importmap-rails` added as gem dependencies
+- `AuditLogEntry.for_period(period)` scope — filters to entries within a named window; accepts `"1h"` (last hour), `"24h"` (last 24 hours), or `"7d"` (last 7 days); used by the dashboard filter bar and available for application queries
 
 ## [0.8.0] - 2026-05-30
 
@@ -126,6 +128,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AuditLogEntry#changed_attributes` — returns the list of attribute names that changed
 - `AuditLogEntry#diff` — returns `{ "attr" => { from:, to: } }` hash for any event
 - `AuditLogEntry#actor` — polymorphic association to the whodunnit record
+
+### Changed
+
+- `.creates`, `.updates`, and `.destroys` scopes are now deprecated aliases for the new `_events`-suffixed names; they remain functional for backwards compatibility but will be removed in a future major release
 
 ## [0.1.0] - 2026-05-29
 
