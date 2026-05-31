@@ -43,6 +43,8 @@ A modern, Zeitwerk-native Rails engine for auditing ActiveRecord changes. Tracks
 
 ## Installation
 
+[↑ Table of contents](#table-of-contents)
+
 Add to your `Gemfile`:
 
 ```ruby
@@ -57,6 +59,8 @@ bin/rails db:migrate
 ```
 
 ## Configuration
+
+[↑ Table of contents](#table-of-contents)
 
 Run the initializer generator to create `config/initializers/rails_audit_log.rb` with every option documented as a commented example:
 
@@ -113,6 +117,8 @@ Each option is documented in detail in its own Usage section below.
 
 ## Web dashboard
 
+[↑ Table of contents](#table-of-contents)
+
 Mount the engine in `config/routes.rb` to enable the built-in audit trail browser:
 
 ```ruby
@@ -122,6 +128,8 @@ mount RailsAuditLog::Engine, at: "/audit"
 Then visit `/audit` to browse all audit entries. The dashboard is delivered via propshaft, importmaps, and CDN-pinned Turbo and Stimulus — no asset pipeline configuration required in the host app.
 
 ## Usage
+
+[↑ Table of contents](#table-of-contents)
 
 ### Tracking a model
 
@@ -535,6 +543,8 @@ refute_audit_log_entry post, event: :destroy
 
 ## Stability and versioning
 
+[↑ Table of contents](#table-of-contents)
+
 `rails_audit_log` follows [Semantic Versioning](https://semver.org/) from 1.0.0. The public API is everything documented in this README. Anything not listed here is internal and may change between minor versions.
 
 | Version bump | Meaning |
@@ -602,6 +612,8 @@ Constants: `EVENTS`, `BLOB_COLUMNS`, `PERIODS`
 
 ## Migrating from PaperTrail
 
+[↑ Table of contents](#table-of-contents)
+
 Run the migration generator to produce a timestamped data migration:
 
 ```bash
@@ -662,6 +674,8 @@ article.paper_trail.version_at(1.week.ago) # reconstructed state at a point in t
 
 ## Companion gems
 
+[↑ Table of contents](#table-of-contents)
+
 > Coming in the 1.x series
 
 | Gem | What it adds |
@@ -672,10 +686,14 @@ Each companion gem declares `rails_audit_log` as a dependency so you only add wh
 
 ## Requirements
 
+[↑ Table of contents](#table-of-contents)
+
 - Ruby >= 3.3
 - Rails >= 7.2
 
 ## Performance
+
+[↑ Table of contents](#table-of-contents)
 
 See [BENCHMARKS.md](BENCHMARKS.md) for write throughput, `batch_audit` gains, query performance, storage efficiency, and notes on comparing against PaperTrail. To run the suite locally:
 
@@ -686,8 +704,12 @@ bundle exec rake benchmark
 
 ## Contributing
 
+[↑ Table of contents](#table-of-contents)
+
 Bug reports and pull requests are welcome on [GitHub](https://github.com/eclectic-coding/rails_audit_log).
 
 ## License
+
+[↑ Table of contents](#table-of-contents)
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
