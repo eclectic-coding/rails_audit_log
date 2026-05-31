@@ -6,7 +6,7 @@
 [![Ruby](https://img.shields.io/badge/ruby-%3E%3D%203.3-ruby)](https://www.ruby-lang.org)
 [![codecov](https://codecov.io/gh/eclectic-coding/rails_audit_log/branch/main/graph/badge.svg)](https://codecov.io/gh/eclectic-coding/rails_audit_log)
 
-A modern, Zeitwerk-native Rails engine for auditing ActiveRecord changes. Tracks `create`, `update`, and `destroy` events with JSON-first storage, whodunnit actor context, and a clean query API.
+Audit logging for Rails. Tracks `create`, `update`, and `destroy` events as structured JSON records with a mountable web dashboard, whodunnit actor context, batch writes, time-travel reconstruction, and test helpers — a clean, well-documented replacement for PaperTrail with a built-in migration path.
 
 ## Table of contents
 
