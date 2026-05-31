@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Diff display toggle — inline (attribute/before/after table) and side-by-side (two-panel grid) modes; preference persists in `localStorage`; powered by a Stimulus `DiffController`; inline is the no-JS default
 - Dashboard filter bar — event type (create/update/destroy), resource class, actor name search, and time period (1h/24h/7d/All); filters are inside the Turbo Frame so they update results without a full-page reload; URL updates via `turbo_action: "advance"` so browser history and direct links work; Clear link resets all active filters; auto-submits on select change and debounces text input via a Stimulus `SearchController`
 - Per-resource timeline at `/audit/audit_log_entries/resource/:item_type/:item_id` — all entries for one record in chronological order, each showing event badge, actor, timestamp, optional reason, and inline diff; Turbo Frame pagination
 - Single-entry show page — breadcrumb nav, metadata card (event, resource, actor, timestamp, reason), full diff table, and Previous/Next entry navigation following the version chain

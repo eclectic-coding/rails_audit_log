@@ -1,3 +1,27 @@
+/* Toggle */
+.ral-diff-toggle {
+  display: flex;
+  border: 1px solid var(--ral-border);
+  border-radius: var(--ral-radius);
+  overflow: hidden;
+  width: fit-content;
+  margin-bottom: 12px;
+}
+
+.ral-diff-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ral-muted);
+  background: var(--ral-surface);
+  border: none;
+  cursor: pointer;
+}
+.ral-diff-btn + .ral-diff-btn  { border-left: 1px solid var(--ral-border); }
+.ral-diff-btn:hover:not(.ral-diff-btn--active) { background: var(--ral-bg); color: var(--ral-text); }
+.ral-diff-btn--active { background: var(--ral-primary); color: #fff; }
+
+/* Inline table */
 .ral-diff { width: 100%; border-collapse: collapse; font-size: 13px; }
 
 .ral-diff th {
@@ -18,3 +42,53 @@
 .ral-diff__attr   { font-weight: 500; color: #333; width: 160px; }
 .ral-diff__before { color: var(--ral-danger);  background: #fff5f5; font-family: monospace; }
 .ral-diff__after  { color: var(--ral-success); background: #f0fdf4; font-family: monospace; }
+
+/* Side-by-side panels */
+.ral-diff-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--ral-border);
+  border-radius: var(--ral-radius);
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.ral-diff-side__panel--before { border-right: 1px solid var(--ral-border); }
+
+.ral-diff-side__header {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ral-muted);
+  border-bottom: 1px solid var(--ral-border);
+  background: var(--ral-bg);
+}
+
+.ral-diff-side__row {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--ral-border-subtle);
+  align-items: baseline;
+}
+.ral-diff-side__row:last-child { border-bottom: none; }
+
+.ral-diff-side__attr  { font-weight: 500; color: #333; min-width: 100px; flex-shrink: 0; }
+
+.ral-diff-side__panel--before .ral-diff-side__value {
+  color: var(--ral-danger);
+  font-family: monospace;
+  background: #fff5f5;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.ral-diff-side__panel--after .ral-diff-side__value {
+  color: var(--ral-success);
+  font-family: monospace;
+  background: #f0fdf4;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
