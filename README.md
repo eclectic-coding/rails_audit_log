@@ -567,6 +567,31 @@ The generated migration reads every row from PaperTrail's `versions` table and i
 
 PaperTrail serializes `object` and `object_changes` as **YAML** by default and as **JSON** when `PaperTrail.serializer = PaperTrail::Serializers::JSON` is configured. The migration handles both transparently — it tries JSON first, then falls back to YAML (with a permissive class list for the Ruby types PaperTrail commonly serializes).
 
+### Compatibility shim for gradual migration
+
+If you need your codebase to keep using PaperTrail's API while migrating, include `RailsAuditLog::PaperTrailCompat` alongside `Auditable`:
+
+```ruby
+require "rails_audit_log/paper_trail_compat"
+
+class Article < ApplicationRecord
+  include RailsAuditLog::Auditable
+  include RailsAuditLog::PaperTrailCompat
+end
+```
+
+This adds the familiar PaperTrail surface:
+
+```ruby
+article.versions                          # audit_log_entries ordered oldest-first
+article.paper_trail.version               # most recent AuditLogEntry
+article.paper_trail.previous_version      # reconstructed previous state (reify)
+article.paper_trail.originator            # whodunnit_snapshot string
+article.paper_trail.version_at(1.week.ago) # reconstructed state at a point in time
+```
+
+`AuditLogEntry#reify` already matches PaperTrail's `Version#reify` — no additional alias needed.
+
 ### What is not migrated
 
 - `versions` rows with an `event` value outside `create`, `update`, `destroy` (custom events added by some apps)

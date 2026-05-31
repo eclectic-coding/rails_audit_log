@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Production-ready with a documented upgrade path from PaperTrail.
 
-- PaperTrail compatibility shim (`paper_trail_compat` concern) that adds `.versions`, `#paper_trail`, `version.reify` aliases for gradual migration
 - Performance benchmark suite comparing throughput and storage to PaperTrail
 - Full YARD API documentation
 - CHANGELOG covering every public surface from 0.1 to 1.0
