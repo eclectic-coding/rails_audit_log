@@ -8,6 +8,38 @@
 
 A modern, Zeitwerk-native Rails engine for auditing ActiveRecord changes. Tracks `create`, `update`, and `destroy` events with JSON-first storage, whodunnit actor context, and a clean query API.
 
+## Table of contents
+
+- [Installation](#installation)
+- [Web dashboard](#web-dashboard)
+- [Usage](#usage)
+  - [Tracking a model](#tracking-a-model)
+  - [Recording who made the change](#recording-who-made-the-change)
+  - [Actor context outside of controllers](#actor-context-outside-of-controllers)
+  - [Querying the audit log](#querying-the-audit-log)
+  - [Lightweight queries](#lightweight-queries)
+  - [Association tracking](#association-tracking)
+  - [Bulk audit writes](#bulk-audit-writes)
+  - [Async audit writes](#async-audit-writes)
+  - [Capping history per record](#capping-history-per-record)
+  - [Selective tracking](#selective-tracking)
+  - [Disabling auditing](#disabling-auditing)
+  - [Object reconstruction](#object-reconstruction)
+  - [Attaching a reason](#attaching-a-reason)
+  - [Arbitrary metadata](#arbitrary-metadata)
+  - [Request metadata capture](#request-metadata-capture)
+  - [Actor display name snapshot](#actor-display-name-snapshot)
+  - [Object snapshot storage](#object-snapshot-storage)
+  - [Separate audit database](#separate-audit-database)
+  - [Test helpers](#test-helpers)
+- [Stability and versioning](#stability-and-versioning)
+- [Migrating from PaperTrail](#migrating-from-papertrail)
+- [Performance](#performance)
+- [Companion gems](#companion-gems)
+- [Requirements](#requirements)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Installation
 
 Add to your `Gemfile`:
@@ -119,19 +151,6 @@ entry.changed_attributes  # => ["title"]
 entry.diff
 # => { "title" => { from: "Hello", to: "World" } }
 ```
-
-### Separate audit database
-
-Route all audit writes to a dedicated database by setting `connects_to` in an initializer. The engine applies it to `AuditLogEntry` at boot:
-
-```ruby
-# config/initializers/rails_audit_log.rb
-RailsAuditLog.connects_to = {
-  database: { writing: :audit_log, reading: :audit_log }
-}
-```
-
-The key (e.g. `:audit_log`) must match a database key in `config/database.yml`. All reads and writes on `AuditLogEntry` — including `batch_audit` inserts and `WriteAuditLogJob` — use that connection automatically.
 
 ### Lightweight queries
 
@@ -293,22 +312,20 @@ article.skip_audit_log { article.update!(cached_at: Time.current) }
 
 ### Object reconstruction
 
-#### Reify a single entry
-
-`AuditLogEntry#reify` returns an unsaved ActiveRecord instance reflecting the record's state **before** the entry was recorded:
+**Reify a single entry** — `AuditLogEntry#reify` returns an unsaved ActiveRecord instance reflecting the record's state **before** the entry was recorded:
 
 ```ruby
 article.update!(title: "v2")
 entry = article.audit_log_entries.updated_events.last
 
 previous = entry.reify
-previous.title   # => "v1"  (the pre-update state)
+previous.title      # => "v1"  (the pre-update state)
 previous.persisted? # => false
 ```
 
 Returns `nil` for `create` entries (nothing existed before).
 
-#### Reconstruct state at any point in time
+**Reconstruct state at any point in time:**
 
 ```ruby
 snapshot = RailsAuditLog.version_at(article, 1.week.ago)
@@ -317,7 +334,7 @@ snapshot.title  # => whatever the title was a week ago
 
 Returns `nil` if the record had no history at that time or was already destroyed.
 
-#### Navigate the version chain
+**Navigate the version chain:**
 
 ```ruby
 entry = article.audit_log_entries.updated_events.last
@@ -402,53 +419,40 @@ To save storage at the cost of reduced reification accuracy, switch to diff-only
 RailsAuditLog.store_snapshot = false
 ```
 
-### Test helper
+### Separate audit database
 
-`without_audit_log` silences audit tracking inside the block — useful in FactoryBot factories and seed data to avoid noise in the audit trail:
+Route all audit writes to a dedicated database by setting `connects_to` in an initializer. The engine applies it to `AuditLogEntry` at boot:
 
 ```ruby
-# spec/rails_helper.rb (or spec/support/factory_helpers.rb)
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.connects_to = {
+  database: { writing: :audit_log, reading: :audit_log }
+}
+```
+
+The key (e.g. `:audit_log`) must match a database key in `config/database.yml`. All reads and writes on `AuditLogEntry` — including `batch_audit` inserts and `WriteAuditLogJob` — use that connection automatically.
+
+### Test helpers
+
+**`RailsAuditLog::TestHelpers`** — silences audit tracking inside a block; useful in FactoryBot factories and seed data:
+
+```ruby
+# spec/rails_helper.rb
 require "rails_audit_log/test_helpers"
 
 RSpec.configure do |config|
   config.include RailsAuditLog::TestHelpers
 end
+```
 
-# Or include directly in FactoryBot definitions:
-FactoryBot.define do
-  factory :post do
-    after(:create) { |p| without_audit_log { p.update!(cached_at: Time.current) } }
-  end
-end
+```ruby
+# Or in a FactoryBot factory:
+after(:create) { |p| without_audit_log { p.update!(cached_at: Time.current) } }
 ```
 
 `without_audit_log` is a prefix-free wrapper around `RailsAuditLog.disable` — thread-safe and restores tracking even if the block raises.
 
-### Minitest assertions
-
-Add to your `test/test_helper.rb`:
-
-```ruby
-require "rails_audit_log/minitest_assertions"
-
-class ActiveSupport::TestCase
-  include RailsAuditLog::MinitestAssertions
-end
-```
-
-Then use the assertions in any test:
-
-```ruby
-assert_audit_log_entry post                                      # any entry
-assert_audit_log_entry post, event: :update                      # update entry
-assert_audit_log_entry post, event: :update, touching: :title    # touching title
-refute_audit_log_entry post, event: :update                      # no update entry
-assert_audit_log_entry post, event: :update, message: "custom"  # custom failure message
-```
-
-### RSpec matchers
-
-Add to your `spec/rails_helper.rb` (or `spec_helper.rb`):
+**`RailsAuditLog::Matchers`** (RSpec) — add to `spec/rails_helper.rb`:
 
 ```ruby
 require "rails_audit_log/matchers"
@@ -458,18 +462,27 @@ RSpec.configure do |config|
 end
 ```
 
-Then use the matchers in any spec:
-
 ```ruby
-# Assert a record has a matching audit entry
 expect(post).to have_audit_log_entry
 expect(post).to have_audit_log_entry(:update)
 expect(post).to have_audit_log_entry(:update).touching(:title)
 
-# Assert a block creates a matching audit entry
-expect { post.update!(title: "New") }.to create_audit_log_entry
-expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update)
 expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update).touching(:title)
+```
+
+**`RailsAuditLog::MinitestAssertions`** — add to `test/test_helper.rb`:
+
+```ruby
+require "rails_audit_log/minitest_assertions"
+
+class ActiveSupport::TestCase
+  include RailsAuditLog::MinitestAssertions
+end
+```
+
+```ruby
+assert_audit_log_entry post, event: :update, touching: :title
+refute_audit_log_entry post, event: :destroy
 ```
 
 ## Stability and versioning
