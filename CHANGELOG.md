@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Stable public API documented in README with full surface inventory (module methods, concerns, scopes, instance methods, testing helpers, generators) and semver guarantee; internal classes annotated `@api private` (Engine, dashboard controllers, ApplicationRecord, ApplicationJob, ApplicationHelper)
+
 ## [0.9.0] - 2026-05-30
 
 ### Added

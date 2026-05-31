@@ -472,6 +472,73 @@ expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update)
 expect { post.update!(title: "New") }.to create_audit_log_entry(event: :update).touching(:title)
 ```
 
+## Stability and versioning
+
+`rails_audit_log` follows [Semantic Versioning](https://semver.org/) from 1.0.0. The public API is everything documented in this README. Anything not listed here is internal and may change between minor versions.
+
+| Version bump | Meaning |
+|---|---|
+| **Patch** (1.0.x) | Bug fixes only — no API changes |
+| **Minor** (1.x.0) | New features, backward-compatible |
+| **Major** (x.0.0) | Breaking changes with a documented migration path |
+
+### Public API surface
+
+**Module-level** — `RailsAuditLog`
+
+| Method / accessor | Purpose |
+|---|---|
+| `.configure { \|config\| }` | Block-style configuration |
+| `.with_actor(actor) { }` | Set whodunnit context for a block |
+| `.disable { }` | Suppress all audit writes for a block |
+| `.enabled?` | Whether audit writes are active |
+| `.audit_log_reason(value) { }` | Attach a free-text reason for a block |
+| `.batch_audit { }` | Buffer writes and flush with a single `insert_all!` |
+| `.version_at(record, time)` | Reconstruct record state at a point in time |
+| `.authenticate { }` | Gate web dashboard access |
+| `.ignored_attributes=` | Global columns excluded from all models |
+| `.store_snapshot=` | Store full object snapshot alongside diffs |
+| `.capture_request_metadata=` | Capture `remote_ip` and `user_agent` |
+| `.version_limit=` | Global entry cap per record |
+| `.async=` | Write audit entries via `WriteAuditLogJob` |
+| `.connects_to=` | Route `AuditLogEntry` to a separate database |
+| `.page_size=` | Entries per page in the web dashboard |
+| `.whodunnit_display=` | Proc for actor display name snapshot |
+| `.retention_period=` | _(1.1.0)_ Global time-based TTL |
+
+**Concerns**
+
+| Class | Include in | Key methods |
+|---|---|---|
+| `RailsAuditLog::Auditable` | ActiveRecord models | `audit_log(only:, ignore:, meta:, associations:, version_limit:, async:)`, `skip_audit_log { }` |
+| `RailsAuditLog::Controller` | ActionController | `audit_log_actor { }` |
+
+**Model — `RailsAuditLog::AuditLogEntry`**
+
+Scopes: `created_events`, `updated_events`, `destroyed_events`, `by_actor`, `for_resource`, `since`, `until`, `touching`, `slim`, `for_period`
+
+Instance methods: `reify`, `previous`, `next`, `diff`, `changed_attributes`, `actor`
+
+Constants: `EVENTS`, `BLOB_COLUMNS`, `PERIODS`
+
+**Testing helpers**
+
+| Module | Require | Usage |
+|---|---|---|
+| `RailsAuditLog::Matchers` | `require "rails_audit_log/matchers"` | RSpec: `have_audit_log_entry`, `create_audit_log_entry` |
+| `RailsAuditLog::MinitestAssertions` | `require "rails_audit_log/minitest_assertions"` | Minitest: `assert_audit_log_entry`, `refute_audit_log_entry` |
+| `RailsAuditLog::TestHelpers` | `require "rails_audit_log/test_helpers"` | `without_audit_log { }` |
+
+**Jobs** (enqueued internally; configure via ActiveJob)
+
+`RailsAuditLog::WriteAuditLogJob` — do not instantiate directly; enqueued when `async: true` is set.
+
+**Generators**
+
+`rails generate rails_audit_log:install` · `rails generate rails_audit_log:initializer`
+
+---
+
 ## Companion gems
 
 > Coming in the 1.x series

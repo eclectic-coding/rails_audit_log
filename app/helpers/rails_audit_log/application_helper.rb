@@ -1,4 +1,5 @@
 module RailsAuditLog
+  # @api private
   module ApplicationHelper
     def format_diff_value(value)
       return "—" if value.nil?

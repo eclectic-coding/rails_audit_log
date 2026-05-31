@@ -4,6 +4,7 @@ require "pagy"
 require "pagy/toolbox/paginators/method"
 
 module RailsAuditLog
+  # @api private
   class Engine < ::Rails::Engine
     isolate_namespace RailsAuditLog
 

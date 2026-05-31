@@ -10,7 +10,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Production-ready with a documented upgrade path from PaperTrail.
 
-- Freeze and document the public API (no breaking changes after 1.0 without a major bump)
 - `bin/rails generate rails_audit_log:migrate_from_paper_trail` — migration script that maps `versions` rows to `audit_log_entries`
 - PaperTrail compatibility shim (`paper_trail_compat` concern) that adds `.versions`, `#paper_trail`, `version.reify` aliases for gradual migration
 - Performance benchmark suite comparing throughput and storage to PaperTrail
