@@ -25,35 +25,49 @@ module RailsAuditLog
                dependent:  :destroy
     end
 
-    # Returns a proxy that exposes PaperTrail's instance-level API.
+    # Returns a proxy object exposing PaperTrail's instance-level API.
+    #
+    # @return [Proxy]
     def paper_trail
       @paper_trail_proxy ||= Proxy.new(self)
     end
 
-    # Proxy providing the PaperTrail instance API surface.
+    # Proxy providing the PaperTrail instance API surface backed by
+    # {AuditLogEntry} records.
     class Proxy
+      # @param record [ActiveRecord::Base] the record this proxy wraps
       def initialize(record)
         @record = record
       end
 
-      # The most recent audit entry for the record.
+      # The most recent {AuditLogEntry} for the record.
+      #
+      # @return [AuditLogEntry, nil]
       def version
         @record.audit_log_entries.order(id: :desc).first
       end
 
-      # Reconstructed record state before the most recent change.
-      # Returns nil for newly created records.
+      # Reconstructs the record's state before the most recent change.
+      # Returns +nil+ for newly created records (no prior state exists).
+      #
+      # @return [ActiveRecord::Base, nil] an unpersisted instance; or +nil+
       def previous_version
         version&.reify
       end
 
-      # Display name of the actor who made the most recent change.
+      # Display name of the actor who made the most recent change, as stored
+      # in +whodunnit_snapshot+.
+      #
+      # @return [String, nil]
       def originator
         version&.whodunnit_snapshot
       end
 
-      # Reconstructs the record's state as it was at the given timestamp.
-      # Delegates to RailsAuditLog.version_at.
+      # Reconstructs the record's state as it was at +timestamp+.
+      # Delegates to {RailsAuditLog.version_at}.
+      #
+      # @param timestamp [Time]
+      # @return [ActiveRecord::Base, nil] an unpersisted instance; or +nil+
       def version_at(timestamp)
         RailsAuditLog.version_at(@record, timestamp)
       end

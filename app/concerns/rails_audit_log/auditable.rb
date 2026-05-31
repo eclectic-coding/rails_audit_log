@@ -1,4 +1,24 @@
 module RailsAuditLog
+  # Include in any ActiveRecord model to automatically track +create+, +update+,
+  # and +destroy+ events as {AuditLogEntry} records.
+  #
+  # == Basic usage
+  #
+  #   class Article < ApplicationRecord
+  #     include RailsAuditLog::Auditable
+  #   end
+  #
+  # == Configuring tracking
+  #
+  #   class Article < ApplicationRecord
+  #     include RailsAuditLog::Auditable
+  #     audit_log only: %i[title body],
+  #               meta: { tenant_id: -> { Current.tenant_id } },
+  #               version_limit: 50,
+  #               async: true
+  #   end
+  #
+  # Adds a polymorphic +has_many :audit_log_entries+ association to the model.
   module Auditable
     extend ActiveSupport::Concern
 
@@ -12,6 +32,8 @@ module RailsAuditLog
 
       _warn_if_audit_table_missing
 
+      # All {AuditLogEntry} records for this object, newest first by default.
+      # Destroyed when the object is destroyed.
       has_many :audit_log_entries,
                class_name: "RailsAuditLog::AuditLogEntry",
                as: :item,
@@ -54,6 +76,7 @@ module RailsAuditLog
     end
 
     class_methods do
+      # @api private
       def _warn_if_audit_table_missing
         return if connection.table_exists?("audit_log_entries")
 
@@ -66,6 +89,33 @@ module RailsAuditLog
         # DB not reachable during this phase (e.g. before db:create) — skip the check
       end
 
+      # Configures auditing options for this model. Call once in the class body
+      # after +include RailsAuditLog::Auditable+.
+      #
+      # @param only [Array<Symbol>, nil] whitelist of attributes to track;
+      #   when set, all other attributes are ignored regardless of +ignore:+
+      # @param ignore [Array<Symbol>, nil] additional attributes to exclude on
+      #   top of {RailsAuditLog.ignored_attributes}; ignored when +only:+ is set
+      # @param meta [Hash{Symbol => Proc}, nil] per-entry metadata; each value
+      #   is a lambda called at write time — zero-argument lambdas receive no
+      #   arguments, one-argument lambdas receive the record instance
+      # @param associations [Boolean, Array<Symbol>, nil] when +true+, tracks
+      #   all +has_many+ and +has_and_belongs_to_many+ associations; pass an
+      #   array of association names to track only specific ones
+      # @param version_limit [Integer, nil] maximum number of entries to retain
+      #   per record; oldest entries are pruned after each write; overrides
+      #   {RailsAuditLog.version_limit} for this model
+      # @param async [Boolean, nil] when +true+, writes are dispatched via
+      #   +WriteAuditLogJob+; overrides {RailsAuditLog.async} for this model
+      # @return [void]
+      # @example
+      #   class Article < ApplicationRecord
+      #     include RailsAuditLog::Auditable
+      #     audit_log only: %i[title body published_at],
+      #               meta: { tenant_id: -> { Current.tenant_id } },
+      #               associations: %i[tags],
+      #               version_limit: 100
+      #   end
       def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, async: nil)
         self._audit_log_only          = only.map(&:to_s)   if only
         self._audit_log_ignore        = ignore.map(&:to_s) if ignore
@@ -76,6 +126,13 @@ module RailsAuditLog
       end
     end
 
+    # Executes the block with audit logging disabled for this record's writes.
+    # A convenience wrapper around {RailsAuditLog.disable}.
+    #
+    # @yield executes the block without recording any audit entries
+    # @return [Object] the return value of the block
+    # @example Skip auditing during a bulk update
+    #   post.skip_audit_log { post.update!(cached_at: Time.current) }
     def skip_audit_log
       RailsAuditLog.disable { yield }
     end

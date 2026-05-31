@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Full YARD API documentation for every public class, module, method, configuration option, and scope; covers `RailsAuditLog` module methods, `Auditable`, `Controller`, `AuditLogEntry`, `Matchers`, `MinitestAssertions`, `TestHelpers`, and `PaperTrailCompat`; internal methods annotated `@api private`
 - Performance benchmark suite (`benchmarks/suite.rb`) covering write throughput, `batch_audit` vs individual writes, query performance, storage per entry; each section compares directly against PaperTrail side-by-side using `benchmark-ips`; run with `bundle exec rake benchmark`; results documented in `BENCHMARKS.md`
 - `RailsAuditLog::PaperTrailCompat` — opt-in concern for gradual migration from PaperTrail; adds `versions` association (oldest-first alias for `audit_log_entries`) and a `paper_trail` proxy exposing `#version`, `#previous_version`, `#originator`, and `#version_at(time)`
 - `bin/rails generate rails_audit_log:migrate_from_paper_trail` — data migration generator that copies PaperTrail `versions` rows to `audit_log_entries`; handles both YAML and JSON serialization; maps `whodunnit` to `whodunnit_snapshot`; processes in batches of 1 000; skips non-standard events; irreversible
