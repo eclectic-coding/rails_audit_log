@@ -199,8 +199,9 @@ module RailsAuditLog
       if (buffer = RailsAuditLog.batch_audit_buffer)
         buffer << entry_attrs.stringify_keys.merge("created_at" => Time.current)
       elsif _audit_log_async || RailsAuditLog.async
-        limit = self.class._audit_log_version_limit || RailsAuditLog.version_limit
-        WriteAuditLogJob.perform_later(entry_attrs.stringify_keys, version_limit: limit)
+        limit  = self.class._audit_log_version_limit || RailsAuditLog.version_limit
+        period = RailsAuditLog.retention_period
+        WriteAuditLogJob.perform_later(entry_attrs.stringify_keys, version_limit: limit, retention_period: period)
       else
         RailsAuditLog::AuditLogEntry.create!(entry_attrs)
         prune_audit_entries
@@ -208,14 +209,19 @@ module RailsAuditLog
     end
 
     def prune_audit_entries
-      limit = self.class._audit_log_version_limit || RailsAuditLog.version_limit
-      return unless limit
+      limit  = self.class._audit_log_version_limit || RailsAuditLog.version_limit
+      period = RailsAuditLog.retention_period
+      return unless limit || period
 
-      count = audit_log_entries.count
-      excess = count - limit
-      return unless excess > 0
+      if period
+        audit_log_entries.where(created_at: ..period.ago).delete_all
+      end
 
-      audit_log_entries.order(id: :asc).limit(excess).delete_all
+      if limit
+        count  = audit_log_entries.count
+        excess = count - limit
+        audit_log_entries.order(id: :asc).limit(excess).delete_all if excess > 0
+      end
     end
 
     def build_audit_metadata

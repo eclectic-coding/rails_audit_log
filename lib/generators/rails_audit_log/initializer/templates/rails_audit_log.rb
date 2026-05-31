@@ -22,6 +22,11 @@ RailsAuditLog.configure do |config|
   # Per-model `audit_log version_limit: N` takes precedence.
   # config.version_limit = 100
 
+  # Global time-based TTL — entries older than this duration are pruned after
+  # each write. Composes with version_limit: an entry is removed when it
+  # exceeds either constraint. Default: nil (no TTL)
+  # config.retention_period = 90.days
+
   # Write all audit entries asynchronously via WriteAuditLogJob. Default: false
   # Per-model `audit_log async: true` also works.
   # config.async = true

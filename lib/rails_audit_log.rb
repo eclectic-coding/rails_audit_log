@@ -53,6 +53,16 @@ module RailsAuditLog
   # @return [Integer, nil]
   mattr_accessor :version_limit, default: nil
 
+  # Global time-based TTL for audit entries. Entries whose +created_at+ is
+  # older than this duration are pruned automatically after each write.
+  # Composes with {.version_limit} — an entry is removed when it exceeds
+  # either constraint.
+  #
+  # @return [ActiveSupport::Duration, nil]
+  # @example
+  #   RailsAuditLog.retention_period = 90.days
+  mattr_accessor :retention_period, default: nil
+
   # When +true+, all audit writes are dispatched via +WriteAuditLogJob+ instead
   # of being written inline. Override per-model with <tt>audit_log async: true</tt>.
   #

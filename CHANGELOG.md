@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `RailsAuditLog.retention_period = 90.days` — global time-based TTL; entries whose `created_at` is older than the configured duration are pruned automatically after each write; composes with `version_limit` — an entry is removed when it exceeds either constraint; `async` mode passes the period to `WriteAuditLogJob` so pruning happens inside the job
+
 ## [1.0.0] - 2026-05-31
 
 ### Added
