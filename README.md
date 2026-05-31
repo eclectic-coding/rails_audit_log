@@ -754,7 +754,7 @@ bundle exec rake benchmark
 
 [↑ Table of contents](#table-of-contents)
 
-Bug reports and pull requests are welcome on [GitHub](https://github.com/eclectic-coding/rails_audit_log).
+Bug reports and pull requests are welcome on [GitHub](https://github.com/eclectic-coding/rails_audit_log). See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, branch workflow, and CHANGELOG conventions.
 
 ## License
 
