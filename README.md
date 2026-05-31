@@ -24,6 +24,7 @@ Audit logging for Rails. Tracks `create`, `update`, and `destroy` events as stru
   - [Async audit writes](#async-audit-writes)
   - [Capping history per record](#capping-history-per-record)
   - [Time-based retention](#time-based-retention)
+  - [Scheduled and manual pruning](#scheduled-and-manual-pruning)
   - [Selective tracking](#selective-tracking)
   - [Disabling auditing](#disabling-auditing)
   - [Object reconstruction](#object-reconstruction)
@@ -349,6 +350,25 @@ class Post < ApplicationRecord
 end
 ```
 
+### Scheduled and manual pruning
+
+`RailsAuditLog::PruneAuditLogJob` prunes all audited models in one pass. It iterates over every `item_type` present in `audit_log_entries`, resolves the effective `retain_for` / `retention_period` and `version_limit` per model, and deletes entries that exceed either constraint.
+
+Enqueue it on a recurring schedule via your job backend:
+
+```ruby
+# config/recurring.yml (Solid Queue)
+prune_audit_log:
+  class: RailsAuditLog::PruneAuditLogJob
+  schedule: every day at midnight
+```
+
+Or run it once manually via the rake task:
+
+```bash
+bin/rails rails_audit_log:prune
+```
+
 ### Selective tracking
 
 Track only specific attributes, or exclude noisy ones:
@@ -626,9 +646,11 @@ Constants: `EVENTS`, `BLOB_COLUMNS`, `PERIODS`
 | `RailsAuditLog::MinitestAssertions` | `require "rails_audit_log/minitest_assertions"` | Minitest: `assert_audit_log_entry`, `refute_audit_log_entry` |
 | `RailsAuditLog::TestHelpers` | `require "rails_audit_log/test_helpers"` | `without_audit_log { }` |
 
-**Jobs** (enqueued internally; configure via ActiveJob)
+**Jobs** (configure via ActiveJob)
 
 `RailsAuditLog::WriteAuditLogJob` — do not instantiate directly; enqueued when `async: true` is set.
+
+`RailsAuditLog::PruneAuditLogJob` — enqueue on a schedule to prune all audited models; also invoked by `bin/rails rails_audit_log:prune`.
 
 **Generators**
 

@@ -7,15 +7,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 ---
 
 
-## 1.1.0 — Data retention policies
-
-> Declarative TTL rules with automatic pruning so audit tables don't grow unbounded.
-
-- `RailsAuditLog::PruneAuditLogJob` — background job that prunes expired entries; enqueue on a schedule via your job backend
-- `bin/rails rails_audit_log:prune` — rake task for manual or cron-driven pruning
-
----
-
 ## 1.2.0 — Encryption at rest
 
 > Encrypt sensitive audit data using Rails' built-in `encrypts` API.
