@@ -65,4 +65,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
   end
 
   add_index :taggings, [:post_id, :tag_id], unique: true
+
+  # PaperTrail versions table — used only for benchmark comparisons
+  create_table :versions, force: :cascade do |t|
+    t.string   :item_type,     null: false
+    t.bigint   :item_id,       null: false
+    t.string   :event,         null: false
+    t.string   :whodunnit
+    t.text     :object
+    t.text     :object_changes
+    t.datetime :created_at
+  end
+
+  add_index :versions, [:item_type, :item_id]
 end

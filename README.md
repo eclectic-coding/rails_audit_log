@@ -614,6 +614,15 @@ Each companion gem declares `rails_audit_log` as a dependency so you only add wh
 - Ruby >= 3.3
 - Rails >= 7.2
 
+## Performance
+
+See [BENCHMARKS.md](BENCHMARKS.md) for write throughput, `batch_audit` gains, query performance, storage efficiency, and notes on comparing against PaperTrail. To run the suite locally:
+
+```bash
+bundle exec rake dev:setup
+bundle exec rake benchmark
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on [GitHub](https://github.com/eclectic-coding/rails_audit_log).
