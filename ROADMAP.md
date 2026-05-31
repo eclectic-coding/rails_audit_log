@@ -11,11 +11,8 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Declarative TTL rules with automatic pruning so audit tables don't grow unbounded.
 
-- `RailsAuditLog.retention_period = 90.days` — global time-based TTL; entries older than this are eligible for pruning
-- `audit_log retain_for: 30.days` — per-model override; takes precedence over the global default
 - `RailsAuditLog::PruneAuditLogJob` — background job that prunes expired entries; enqueue on a schedule via your job backend
 - `bin/rails rails_audit_log:prune` — rake task for manual or cron-driven pruning
-- `version_limit` and `retention_period` compose — an entry is pruned when it exceeds either constraint
 
 ---
 
