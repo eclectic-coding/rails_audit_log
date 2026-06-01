@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-01
+
 ### Added
 
 - `config.encrypt` option added to the `rails_audit_log:initializer` template so `RailsAuditLog.encrypt = true` is documented alongside all other configuration options
@@ -166,7 +168,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.2.0
 [1.1.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.1.0
 [1.0.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.0.0
 [0.9.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v0.9.0
