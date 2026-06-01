@@ -11,7 +11,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Encrypt sensitive audit data using Rails' built-in `encrypts` API.
 
-- `audit_log encrypt: true` — opt-in per model; encrypts `object_changes` and `object` columns at write time using `ActiveRecord::Encryption`
 - `RailsAuditLog.encrypt = true` — global default; per-model `encrypt: false` opts out
 - Install generator produces the required `config/credentials.yml.enc` keys and `config/initializers/rails_audit_log.rb` encryption config snippet
 - Transparent decryption on read — existing query API (`.diff`, `.reify`, `.touching`) works unchanged

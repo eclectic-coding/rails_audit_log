@@ -25,6 +25,7 @@ Audit logging for Rails. Tracks `create`, `update`, and `destroy` events as stru
   - [Capping history per record](#capping-history-per-record)
   - [Time-based retention](#time-based-retention)
   - [Scheduled and manual pruning](#scheduled-and-manual-pruning)
+  - [Encrypting audit data](#encrypting-audit-data)
   - [Selective tracking](#selective-tracking)
   - [Disabling auditing](#disabling-auditing)
   - [Object reconstruction](#object-reconstruction)
@@ -368,6 +369,29 @@ Or run it once manually via the rake task:
 ```bash
 bin/rails rails_audit_log:prune
 ```
+
+### Encrypting audit data
+
+Encrypt `object_changes` and `object` at write time using `ActiveRecord::Encryption` (Rails 7.1+). Pass `encrypt: true` to `audit_log` in the model:
+
+```ruby
+class Payment < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log encrypt: true
+end
+```
+
+The host app must configure `ActiveRecord::Encryption` with primary, deterministic, and key-derivation-salt keys — typically in `config/initializers/rails_audit_log.rb` or `config/application.rb`:
+
+```ruby
+config.active_record.encryption.primary_key        = Rails.application.credentials.ral_primary_key
+config.active_record.encryption.deterministic_key  = Rails.application.credentials.ral_deterministic_key
+config.active_record.encryption.key_derivation_salt = Rails.application.credentials.ral_kdf_salt
+```
+
+Decryption is transparent — `#diff`, `#reify`, `#changed_attributes`, and all other instance methods work without any changes.
+
+> **Note:** The `touching` scope uses database-level JSON extraction (`json_extract` / `->>`) and will not match encrypted entries. All Ruby-side query methods work normally.
 
 ### Selective tracking
 
