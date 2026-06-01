@@ -69,6 +69,14 @@ module RailsAuditLog
   # @return [Boolean]
   mattr_accessor :async, default: false
 
+  # When +true+, encrypts +object_changes+ and +object+ for all audited models
+  # using +ActiveRecord::Encryption+. Requires the host app to configure
+  # +config.active_record.encryption+. Override per-model with
+  # <tt>audit_log encrypt: false</tt> to opt a specific model out.
+  #
+  # @return [Boolean]
+  mattr_accessor :encrypt, default: false
+
   # Passes +connects_to+ options directly to {AuditLogEntry} so audit entries
   # can be stored on a separate database.
   #

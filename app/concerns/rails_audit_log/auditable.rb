@@ -30,7 +30,7 @@ module RailsAuditLog
       class_attribute :_audit_log_version_limit,  default: nil
       class_attribute :_audit_log_retain_for,     default: nil
       class_attribute :_audit_log_async,          default: false
-      class_attribute :_audit_log_encrypt,        default: false
+      class_attribute :_audit_log_encrypt,        default: nil
 
       _warn_if_audit_table_missing
 
@@ -113,7 +113,9 @@ module RailsAuditLog
       # @param async [Boolean, nil] when +true+, writes are dispatched via
       #   +WriteAuditLogJob+; overrides {RailsAuditLog.async} for this model
       # @param encrypt [Boolean, nil] when +true+, encrypts +object_changes+ and
-      #   +object+ at write time using +ActiveRecord::Encryption+; requires the
+      #   +object+ at write time using +ActiveRecord::Encryption+; when +false+,
+      #   opts this model out even if {RailsAuditLog.encrypt} is +true+; when
+      #   +nil+ (default), falls back to {RailsAuditLog.encrypt}; requires the
       #   host app to configure +config.active_record.encryption+; decryption is
       #   transparent — {AuditLogEntry#diff}, {AuditLogEntry#reify}, and
       #   {AuditLogEntry.touching} work unchanged for non-SQL access paths
@@ -210,7 +212,9 @@ module RailsAuditLog
     end
 
     def maybe_encrypt(value)
-      return value unless self.class._audit_log_encrypt && value
+      return value unless value
+      encrypt = self.class._audit_log_encrypt.nil? ? RailsAuditLog.encrypt : self.class._audit_log_encrypt
+      return value unless encrypt
       ciphertext = ActiveRecord::Encryption.encryptor.encrypt(value.to_json)
       { RailsAuditLog::AuditLogEntry::ENCRYPTION_MARKER => ciphertext }
     end
