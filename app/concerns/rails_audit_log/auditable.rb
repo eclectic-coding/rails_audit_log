@@ -30,6 +30,7 @@ module RailsAuditLog
       class_attribute :_audit_log_version_limit,  default: nil
       class_attribute :_audit_log_retain_for,     default: nil
       class_attribute :_audit_log_async,          default: false
+      class_attribute :_audit_log_encrypt,        default: false
 
       _warn_if_audit_table_missing
 
@@ -111,6 +112,11 @@ module RailsAuditLog
       #   {RailsAuditLog.retention_period} for this model
       # @param async [Boolean, nil] when +true+, writes are dispatched via
       #   +WriteAuditLogJob+; overrides {RailsAuditLog.async} for this model
+      # @param encrypt [Boolean, nil] when +true+, encrypts +object_changes+ and
+      #   +object+ at write time using +ActiveRecord::Encryption+; requires the
+      #   host app to configure +config.active_record.encryption+; decryption is
+      #   transparent — {AuditLogEntry#diff}, {AuditLogEntry#reify}, and
+      #   {AuditLogEntry.touching} work unchanged for non-SQL access paths
       # @return [void]
       # @example
       #   class Article < ApplicationRecord
@@ -119,9 +125,10 @@ module RailsAuditLog
       #               meta: { tenant_id: -> { Current.tenant_id } },
       #               associations: %i[tags],
       #               version_limit: 100,
-      #               retain_for: 30.days
+      #               retain_for: 30.days,
+      #               encrypt: true
       #   end
-      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, retain_for: nil, async: nil)
+      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, retain_for: nil, async: nil, encrypt: nil)
         self._audit_log_only          = only.map(&:to_s)   if only
         self._audit_log_ignore        = ignore.map(&:to_s) if ignore
         self._audit_log_meta          = meta                if meta
@@ -129,6 +136,7 @@ module RailsAuditLog
         self._audit_log_version_limit = version_limit       unless version_limit.nil?
         self._audit_log_retain_for    = retain_for          unless retain_for.nil?
         self._audit_log_async         = async               unless async.nil?
+        self._audit_log_encrypt       = encrypt             unless encrypt.nil?
       end
     end
 
@@ -169,7 +177,7 @@ module RailsAuditLog
         event:              "update",
         item_type:          self.class.name,
         item_id:            id,
-        object_changes:     { assoc_name => [before, after] },
+        object_changes:     maybe_encrypt({ assoc_name => [before, after] }),
         object:             nil,
         reason:             RailsAuditLog.reason,
         metadata:           meta.presence,
@@ -191,14 +199,20 @@ module RailsAuditLog
         event:               event,
         item_type:           self.class.name,
         item_id:             id,
-        object_changes:      filtered,
-        object:              snapshot,
+        object_changes:      maybe_encrypt(filtered),
+        object:              maybe_encrypt(snapshot),
         reason:              RailsAuditLog.reason,
         metadata:            meta.presence,
         whodunnit_snapshot:  actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
         actor_type:          actor&.class&.name,
         actor_id:            actor.respond_to?(:id) ? actor.id : nil
       )
+    end
+
+    def maybe_encrypt(value)
+      return value unless self.class._audit_log_encrypt && value
+      ciphertext = ActiveRecord::Encryption.encryptor.encrypt(value.to_json)
+      { RailsAuditLog::AuditLogEntry::ENCRYPTION_MARKER => ciphertext }
     end
 
     def write_audit_entry(entry_attrs)

@@ -21,9 +21,10 @@ module RailsAuditLog
   class AuditLogEntry < ApplicationRecord
     self.table_name = "audit_log_entries"
 
-    EVENTS       = %w[create update destroy].freeze
-    BLOB_COLUMNS = %w[object_changes object metadata].freeze
-    PERIODS      = { "1h" => 1.hour, "24h" => 24.hours, "7d" => 7.days }.freeze
+    EVENTS             = %w[create update destroy].freeze
+    BLOB_COLUMNS       = %w[object_changes object metadata].freeze
+    PERIODS            = { "1h" => 1.hour, "24h" => 24.hours, "7d" => 7.days }.freeze
+    ENCRYPTION_MARKER  = "__ral_enc__"
 
     # @api private
     def self.configure_connection!
@@ -192,6 +193,21 @@ module RailsAuditLog
       self.class.where(item_type: item_type, item_id: item_id).where("id > ?", id).order(id: :asc).first
     end
 
+    # Returns the decrypted +object_changes+ hash. Transparent to callers —
+    # encrypted and non-encrypted entries behave identically.
+    #
+    # @return [Hash, nil]
+    def object_changes
+      decrypt_if_encrypted(super)
+    end
+
+    # Returns the decrypted +object+ snapshot hash. Transparent to callers.
+    #
+    # @return [Hash, nil]
+    def object
+      decrypt_if_encrypted(super)
+    end
+
     # Returns the list of attribute (and association) names that changed in
     # this entry, derived from the keys of +object_changes+.
     #
@@ -214,6 +230,12 @@ module RailsAuditLog
     end
 
     private
+
+    def decrypt_if_encrypted(value)
+      return value unless value.is_a?(Hash) && value.keys == [ENCRYPTION_MARKER]
+      json = ActiveRecord::Encryption.encryptor.decrypt(value[ENCRYPTION_MARKER])
+      JSON.parse(json)
+    end
 
     def metadata_must_be_a_hash
       errors.add(:metadata, "must be a Hash") if metadata.present? && !metadata.is_a?(Hash)

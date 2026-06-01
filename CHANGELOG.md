@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `audit_log encrypt: true` — opt-in per-model encryption of the `object_changes` and `object` columns using `ActiveRecord::Encryption` (Rails 7.1+); requires `config.active_record.encryption` to be configured in the host app; decryption is transparent — `#diff`, `#reify`, `#changed_attributes`, and all instance methods work unchanged; the `touching` scope uses SQL JSON extraction and will not match encrypted entries
 - `CONTRIBUTING.md` — contributor guide covering dev setup, test commands, branch and CHANGELOG conventions, RuboCop, bug reporting, and PR submission steps; README Contributing section updated to link to it
 
 ## [1.1.0] - 2026-05-31
