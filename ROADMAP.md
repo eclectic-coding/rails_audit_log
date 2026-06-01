@@ -7,14 +7,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 ---
 
 
-## 1.2.0 — Encryption at rest
-
-> Encrypt sensitive audit data using Rails' built-in `encrypts` API.
-
-- Migration generator adds `encrypted_` column variants for zero-downtime upgrades
-
----
-
 ## 1.3.0 — Multi-tenancy
 
 > Built-in tenant scoping so audit entries are naturally isolated in multi-tenant apps.
