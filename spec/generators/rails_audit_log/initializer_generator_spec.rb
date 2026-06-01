@@ -34,6 +34,7 @@ RSpec.describe RailsAuditLog::Generators::InitializerGenerator do
       expect(content).to include("whodunnit_display")
       expect(content).to include("version_limit")
       expect(content).to include("async")
+      expect(content).to include("encrypt")
       expect(content).to include("connects_to")
       expect(content).to include("page_size")
       expect(content).to include("authenticate")

@@ -31,6 +31,13 @@ RailsAuditLog.configure do |config|
   # Per-model `audit_log async: true` also works.
   # config.async = true
 
+  # Encrypt object_changes and object for all audited models using
+  # ActiveRecord::Encryption (Rails 7.1+). Requires config.active_record.encryption
+  # to be configured — run `bin/rails generate rails_audit_log:encryption` for the
+  # setup initializer and re-encryption migration. Default: false
+  # Per-model `audit_log encrypt: false` opts a specific model out.
+  # config.encrypt = true
+
   # Route AuditLogEntry to a dedicated database (Rails multi-DB). Default: nil
   # config.connects_to = { database: { writing: :audit_log, reading: :audit_log } }
 
