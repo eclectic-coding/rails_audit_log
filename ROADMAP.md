@@ -11,7 +11,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Encrypt sensitive audit data using Rails' built-in `encrypts` API.
 
-- Install generator produces the required `config/credentials.yml.enc` keys and `config/initializers/rails_audit_log.rb` encryption config snippet
 - Migration generator adds `encrypted_` column variants for zero-downtime upgrades
 
 ---

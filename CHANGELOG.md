@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `bin/rails generate rails_audit_log:encryption` — generator that creates an `ActiveRecord::Encryption` config initializer (referencing `bin/rails db:encryption:init`) and a data migration that re-encrypts existing plain-text audit entries for models using `audit_log encrypt: true`; the migration skips already-encrypted entries so it is safe to re-run; irreversible
 - `RailsAuditLog.encrypt = true` — global encryption default; all audited models encrypt `object_changes` and `object` at write time using `ActiveRecord::Encryption`; per-model `audit_log encrypt: false` opts a specific model out; per-model `audit_log encrypt: true` opts a model in even when the global default is off
 - `audit_log encrypt: true` — opt-in per-model encryption of the `object_changes` and `object` columns using `ActiveRecord::Encryption` (Rails 7.1+); requires `config.active_record.encryption` to be configured in the host app; decryption is transparent — `#diff`, `#reify`, `#changed_attributes`, and all instance methods work unchanged; the `touching` scope uses SQL JSON extraction and will not match encrypted entries
 - `CONTRIBUTING.md` — contributor guide covering dev setup, test commands, branch and CHANGELOG conventions, RuboCop, bug reporting, and PR submission steps; README Contributing section updated to link to it

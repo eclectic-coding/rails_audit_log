@@ -409,6 +409,24 @@ Decryption is transparent — `#diff`, `#reify`, `#changed_attributes`, and all 
 
 > **Note:** The `touching` scope uses database-level JSON extraction (`json_extract` / `->>`) and will not match encrypted entries. All Ruby-side query methods work normally.
 
+#### Setting up encryption keys
+
+Run the Rails built-in task to generate keys and store them in `config/credentials.yml.enc`:
+
+```bash
+bin/rails db:encryption:init
+```
+
+Then run the encryption generator to produce a wired-up initializer and a re-encryption migration for existing entries:
+
+```bash
+bin/rails generate rails_audit_log:encryption
+```
+
+The generator creates:
+- `config/initializers/rails_audit_log_encryption.rb` — reads the generated keys from credentials and passes them to `ActiveRecord::Encryption`
+- `db/migrate/TIMESTAMP_encrypt_rails_audit_log_entries.rb` — re-encrypts existing plain-text audit entries; edit `ENCRYPTED_MODELS` to list your model class names, then run `bin/rails db:migrate`
+
 ### Selective tracking
 
 Track only specific attributes, or exclude noisy ones:
