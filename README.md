@@ -389,6 +389,22 @@ config.active_record.encryption.deterministic_key  = Rails.application.credentia
 config.active_record.encryption.key_derivation_salt = Rails.application.credentials.ral_kdf_salt
 ```
 
+Enable encryption globally so every audited model encrypts by default:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.encrypt = true
+```
+
+Opt a specific model out when the global default is on:
+
+```ruby
+class PublicLog < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log encrypt: false   # plain JSON even when RailsAuditLog.encrypt = true
+end
+```
+
 Decryption is transparent — `#diff`, `#reify`, `#changed_attributes`, and all other instance methods work without any changes.
 
 > **Note:** The `touching` scope uses database-level JSON extraction (`json_extract` / `->>`) and will not match encrypted entries. All Ruby-side query methods work normally.

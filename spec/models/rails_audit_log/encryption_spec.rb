@@ -93,3 +93,45 @@ RSpec.describe "RailsAuditLog::Auditable encrypt: true" do
     end
   end
 end
+
+RSpec.describe "RailsAuditLog.encrypt global default" do
+  around { |ex| RailsAuditLog.encrypt = true; ex.run; RailsAuditLog.encrypt = false }
+
+  let(:plain_class) do
+    Class.new(ApplicationRecord) do
+      self.table_name = "posts"
+      def self.name = "GlobalPlainPost"
+      include RailsAuditLog::Auditable
+    end
+  end
+
+  let(:opted_out_class) do
+    Class.new(ApplicationRecord) do
+      self.table_name = "posts"
+      def self.name = "OptedOutPost"
+      include RailsAuditLog::Auditable
+      audit_log encrypt: false
+    end
+  end
+
+  it "encrypts entries for models with no per-model encrypt setting" do
+    record = plain_class.create!(title: "Global Secret")
+    entry = plain_class.const_set("PlainInstance", record) && record.audit_log_entries.first
+    raw = entry.read_attribute(:object_changes)
+    expect(raw.keys).to eq([RailsAuditLog::AuditLogEntry::ENCRYPTION_MARKER])
+  end
+
+  it "transparently decrypts on read for globally encrypted models" do
+    record = plain_class.create!(title: "Global Secret")
+    entry = record.audit_log_entries.first
+    expect(entry.object_changes["title"]).to eq([nil, "Global Secret"])
+  end
+
+  it "opts out when the model sets encrypt: false" do
+    record = opted_out_class.create!(title: "Not secret")
+    entry = record.audit_log_entries.first
+    raw = entry.read_attribute(:object_changes)
+    expect(raw).to be_a(Hash)
+    expect(raw.keys).not_to include(RailsAuditLog::AuditLogEntry::ENCRYPTION_MARKER)
+  end
+end
