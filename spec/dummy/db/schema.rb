@@ -1,4 +1,4 @@
-ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_02_000001) do
   create_table :audit_log_entries, force: :cascade do |t|
     t.string  :event,       null: false
     t.string  :item_type,   null: false
@@ -10,6 +10,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
     t.string  :whodunnit_snapshot
     t.string  :actor_type
     t.bigint  :actor_id
+    t.string  :tenant_id
     t.datetime :created_at
   end
 
@@ -17,6 +18,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_000001) do
   add_index :audit_log_entries, [:actor_type, :actor_id]
   add_index :audit_log_entries, :event
   add_index :audit_log_entries, :created_at
+  add_index :audit_log_entries, :tenant_id
 
   create_table :posts, force: :cascade do |t|
     t.string   :title, null: false

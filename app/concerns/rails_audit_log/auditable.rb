@@ -31,6 +31,7 @@ module RailsAuditLog
       class_attribute :_audit_log_retain_for,     default: nil
       class_attribute :_audit_log_async,          default: false
       class_attribute :_audit_log_encrypt,        default: nil
+      class_attribute :_audit_log_tenant,         default: nil
 
       _warn_if_audit_table_missing
 
@@ -119,18 +120,21 @@ module RailsAuditLog
       #   host app to configure +config.active_record.encryption+; decryption is
       #   transparent — {AuditLogEntry#diff}, {AuditLogEntry#reify}, and
       #   {AuditLogEntry.touching} work unchanged for non-SQL access paths
+      # @param tenant [Proc, nil] zero-argument lambda evaluated at write time;
+      #   return value is stored in the +tenant_id+ column; overrides
+      #   {RailsAuditLog.current_tenant} for this model
       # @return [void]
       # @example
       #   class Article < ApplicationRecord
       #     include RailsAuditLog::Auditable
       #     audit_log only: %i[title body published_at],
-      #               meta: { tenant_id: -> { Current.tenant_id } },
+      #               tenant: -> { Current.tenant_id },
       #               associations: %i[tags],
       #               version_limit: 100,
       #               retain_for: 30.days,
       #               encrypt: true
       #   end
-      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, retain_for: nil, async: nil, encrypt: nil)
+      def audit_log(only: nil, ignore: nil, meta: nil, associations: nil, version_limit: nil, retain_for: nil, async: nil, encrypt: nil, tenant: nil)
         self._audit_log_only          = only.map(&:to_s)   if only
         self._audit_log_ignore        = ignore.map(&:to_s) if ignore
         self._audit_log_meta          = meta                if meta
@@ -139,6 +143,7 @@ module RailsAuditLog
         self._audit_log_retain_for    = retain_for          unless retain_for.nil?
         self._audit_log_async         = async               unless async.nil?
         self._audit_log_encrypt       = encrypt             unless encrypt.nil?
+        self._audit_log_tenant        = tenant              unless tenant.nil?
       end
     end
 
@@ -183,6 +188,7 @@ module RailsAuditLog
         object:             nil,
         reason:             RailsAuditLog.reason,
         metadata:           meta.presence,
+        tenant_id:          resolve_tenant_id,
         whodunnit_snapshot: actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
         actor_type:         actor&.class&.name,
         actor_id:           actor.respond_to?(:id) ? actor.id : nil
@@ -205,6 +211,7 @@ module RailsAuditLog
         object:              maybe_encrypt(snapshot),
         reason:              RailsAuditLog.reason,
         metadata:            meta.presence,
+        tenant_id:           resolve_tenant_id,
         whodunnit_snapshot:  actor ? RailsAuditLog.whodunnit_display.call(actor) : nil,
         actor_type:          actor&.class&.name,
         actor_id:            actor.respond_to?(:id) ? actor.id : nil
@@ -246,6 +253,11 @@ module RailsAuditLog
         excess = count - limit
         audit_log_entries.order(id: :asc).limit(excess).delete_all if excess > 0
       end
+    end
+
+    def resolve_tenant_id
+      tenant_proc = self.class._audit_log_tenant || RailsAuditLog.current_tenant
+      tenant_proc&.call
     end
 
     def build_audit_metadata

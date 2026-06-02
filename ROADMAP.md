@@ -11,12 +11,9 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Built-in tenant scoping so audit entries are naturally isolated in multi-tenant apps.
 
-- `audit_log tenant: -> { Current.tenant_id }` — zero-argument lambda evaluated at write time and stored in a dedicated `tenant_id` column
 - `AuditLogEntry.for_tenant(id)` scope — filters all queries to a single tenant; composable with existing scopes
-- `RailsAuditLog.current_tenant { Current.tenant_id }` — global tenant resolver used when no per-model override is set
 - Dashboard `/audit` automatically scopes to the current tenant when the resolver is configured
 - Acts As Tenant compatibility helper: `RailsAuditLog.acts_as_tenant!` wires the resolver to `ActsAsTenant.current_tenant`
-- Migration generator adds the `tenant_id` column and index
 
 ---
 
