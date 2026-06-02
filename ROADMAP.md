@@ -7,14 +7,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 ---
 
 
-## 1.4.0 — Event streaming
-
-> Publish audit entries to an external message bus as they are written.
-
-- Kafka adapter (optional, separate gem `rails_audit_log-kafka`) — publishes via `WaterDrop`
-- SQS adapter (optional, separate gem `rails_audit_log-sqs`) — publishes via `aws-sdk-sqs`
-
----
 
 ## 1.5.0 — GraphQL API (`rails_audit_log-graphql`)
 
