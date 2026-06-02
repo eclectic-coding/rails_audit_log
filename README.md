@@ -26,6 +26,7 @@ Audit logging for Rails. Tracks `create`, `update`, and `destroy` events as stru
   - [Time-based retention](#time-based-retention)
   - [Scheduled and manual pruning](#scheduled-and-manual-pruning)
   - [Encrypting audit data](#encrypting-audit-data)
+  - [Multi-tenancy](#multi-tenancy)
   - [Selective tracking](#selective-tracking)
   - [Disabling auditing](#disabling-auditing)
   - [Object reconstruction](#object-reconstruction)
@@ -426,6 +427,35 @@ bin/rails generate rails_audit_log:encryption
 The generator creates:
 - `config/initializers/rails_audit_log_encryption.rb` — reads the generated keys from credentials and passes them to `ActiveRecord::Encryption`
 - `db/migrate/TIMESTAMP_encrypt_rails_audit_log_entries.rb` — re-encrypts existing plain-text audit entries; edit `ENCRYPTED_MODELS` to list your model class names, then run `bin/rails db:migrate`
+
+### Multi-tenancy
+
+Store the current tenant on every audit entry so queries are naturally isolated per tenant.
+
+Run the generator to add the `tenant_id` column:
+
+```bash
+bin/rails generate rails_audit_log:tenant
+bin/rails db:migrate
+```
+
+Set a global resolver in your initializer — the block is called at write time:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.current_tenant { Current.tenant_id }
+```
+
+Or override per model:
+
+```ruby
+class Order < ApplicationRecord
+  include RailsAuditLog::Auditable
+  audit_log tenant: -> { Current.tenant_id }
+end
+```
+
+The per-model lambda takes precedence over the global resolver. Both accept zero-argument lambdas and store whatever the block returns in the `tenant_id` string column.
 
 ### Selective tracking
 

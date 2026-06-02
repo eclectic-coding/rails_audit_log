@@ -109,6 +109,19 @@ RailsAuditLog.with_actor(alice) do
   end
 end
 
+# Demonstrate 1.3.0 — multi-tenancy (current_tenant global resolver)
+puts "  Demonstrating multi-tenancy (current_tenant)..."
+tenant_ids = %w[acme globex]
+RailsAuditLog.current_tenant { Thread.current[:demo_tenant_id] }
+tenant_ids.each do |tenant|
+  Thread.current[:demo_tenant_id] = tenant
+  RailsAuditLog.with_actor(alice) do
+    post = Post.create!(title: "#{tenant.capitalize} post", body: "Belongs to #{tenant} tenant.")
+    post.update!(title: "#{tenant.capitalize} post (revised)")
+  end
+end
+Thread.current[:demo_tenant_id] = nil
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
 puts "  #{Tag.count} tags"
@@ -116,4 +129,5 @@ puts "  #{Comment.count} comments"
 puts "  #{Article.count} articles (only: [:title])"
 puts "  #{RailsAuditLog::AuditLogEntry.count} audit log entries"
 puts "  RailsAuditLog.connects_to: #{RailsAuditLog.connects_to.inspect} (nil = default connection)"
+puts "  tenant entries: #{RailsAuditLog::AuditLogEntry.where.not(tenant_id: nil).count} with tenant_id set"
 puts "Done."
