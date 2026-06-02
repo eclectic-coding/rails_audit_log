@@ -114,6 +114,19 @@ module RailsAuditLog
     yield self
   end
 
+  # Sets or returns the global tenant resolver block. The block is called at
+  # write time and its return value is stored in the +tenant_id+ column of each
+  # {AuditLogEntry}. Override per-model with <tt>audit_log tenant: -> { ... }</tt>.
+  #
+  # @yield block called with no arguments at write time; return the tenant id
+  # @return [Proc, nil] the stored block, or +nil+ when not configured
+  # @example
+  #   RailsAuditLog.current_tenant { Current.tenant_id }
+  def self.current_tenant(&block)
+    @current_tenant = block if block_given?
+    @current_tenant
+  end
+
   # Sets or returns the authentication block used to gate the web dashboard.
   # The block is evaluated in controller context, so controller helpers
   # (e.g. +current_user+) are available directly.
