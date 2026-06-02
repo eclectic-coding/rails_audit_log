@@ -510,17 +510,45 @@ RailsAuditLog.streaming_adapter = RailsAuditLog::Streaming::ActiveJobAdapter.new
 
 #### Custom adapters
 
-Any object implementing `#publish(entry)` works:
+Any object implementing `#publish(entry)` works — no companion gem needed for Kafka, SQS, or any other transport:
 
 ```ruby
-class MyAdapter
+# Kafka via WaterDrop
+class KafkaAuditAdapter
+  def initialize(producer: WaterDrop::SyncProducer)
+    @producer = producer
+  end
+
   def publish(entry)
-    MyMessageBus.publish("audit", entry.attributes)
+    @producer.call(entry.attributes.to_json, topic: "audit_log")
   end
 end
 
-RailsAuditLog.streaming_adapter = MyAdapter.new
+RailsAuditLog.streaming_adapter = KafkaAuditAdapter.new
 ```
+
+```ruby
+# SQS via aws-sdk-sqs
+class SqsAuditAdapter
+  def initialize(queue_url:, client: Aws::SQS::Client.new)
+    @queue_url = queue_url
+    @client    = client
+  end
+
+  def publish(entry)
+    @client.send_message(
+      queue_url:    @queue_url,
+      message_body: entry.attributes.to_json
+    )
+  end
+end
+
+RailsAuditLog.streaming_adapter = SqsAuditAdapter.new(
+  queue_url: ENV.fetch("AUDIT_SQS_URL")
+)
+```
+
+Wrap the adapter in `ActiveJobAdapter` if you want publishing to be asynchronous and not block the request thread.
 
 #### Batch mode
 
