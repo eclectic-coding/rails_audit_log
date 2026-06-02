@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog.current_tenant { Current.tenant_id }` — global tenant resolver; the block is called at write time and its return value is stored in a new `tenant_id` string column on `audit_log_entries`; used when no per-model override is set
 - `audit_log tenant: -> { Current.tenant_id }` — per-model tenant lambda evaluated at write time; takes precedence over the global `current_tenant` resolver; stored in the `tenant_id` column of each entry
 - `bin/rails generate rails_audit_log:tenant` — migration generator that adds the `tenant_id` string column and index to `audit_log_entries`
+- `AuditLogEntry.for_tenant(id)` scope — filters all queries by `tenant_id`; composable with all existing scopes
+- Dashboard (`/audit`) automatically scopes all entries to the current tenant when `RailsAuditLog.current_tenant` is configured; applies to the entries index and per-resource timeline
+- `RailsAuditLog.acts_as_tenant!` — one-line integration with the `acts_as_tenant` gem; wires `current_tenant` to `ActsAsTenant.current_tenant&.id`
 
 ## [1.2.0] - 2026-06-01
 

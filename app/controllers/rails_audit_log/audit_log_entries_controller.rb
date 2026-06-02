@@ -21,7 +21,7 @@ module RailsAuditLog
     end
 
     def filtered_scope
-      scope = AuditLogEntry.order(created_at: :desc)
+      scope = base_audit_scope.order(created_at: :desc)
       scope = scope.where(event: @event)                          if @event
       scope = scope.where(item_type: @item_type)                  if @item_type
       scope = scope.for_period(@period)                           if @period
