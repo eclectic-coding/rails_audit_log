@@ -122,6 +122,21 @@ tenant_ids.each do |tenant|
 end
 Thread.current[:demo_tenant_id] = nil
 
+# Demonstrate 1.4.0 — event streaming (NotificationsAdapter)
+puts "  Demonstrating event streaming (NotificationsAdapter)..."
+stream_count = 0
+subscription = ActiveSupport::Notifications.subscribe("rails_audit_log.entry_created") do
+  stream_count += 1
+end
+RailsAuditLog.streaming_adapter = RailsAuditLog::Streaming::NotificationsAdapter.new
+RailsAuditLog.with_actor(alice) do
+  post = Post.create!(title: "Streamed post", body: "Published via NotificationsAdapter.")
+  post.update!(title: "Streamed post (edited)")
+end
+ActiveSupport::Notifications.unsubscribe(subscription)
+RailsAuditLog.streaming_adapter = nil
+puts "  streamed #{stream_count} notifications"
+
 puts "  #{User.count} users"
 puts "  #{Post.count} posts"
 puts "  #{Tag.count} tags"

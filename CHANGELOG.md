@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `RailsAuditLog.streaming_adapter = MyAdapter` — streaming adapter interface; any object implementing `#publish(entry)` receives every persisted `AuditLogEntry` after it is written; set to `nil` (default) to disable
+- `RailsAuditLog::Streaming::NotificationsAdapter` — zero-dependency built-in adapter; publishes `rails_audit_log.entry_created` via `ActiveSupport::Notifications`; subscribe with `ActiveSupport::Notifications.subscribe("rails_audit_log.entry_created")`
+- `RailsAuditLog::Streaming::ActiveJobAdapter` — async adapter; enqueues `PublishEntryJob` with the entry attributes; accepts an optional `queue:` keyword; the job fires a `rails_audit_log.entry_created` notification when performed
+- `batch_audit` publishes each entry individually after the bulk `INSERT` flushes, so streaming consumers receive all entries even in batch mode
+
 ## [1.3.0] - 2026-06-02
 
 ### Added

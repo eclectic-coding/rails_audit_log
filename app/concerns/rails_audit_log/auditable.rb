@@ -234,8 +234,9 @@ module RailsAuditLog
         period = self.class._audit_log_retain_for || RailsAuditLog.retention_period
         WriteAuditLogJob.perform_later(entry_attrs.stringify_keys, version_limit: limit, retention_period: period)
       else
-        RailsAuditLog::AuditLogEntry.create!(entry_attrs)
+        entry = RailsAuditLog::AuditLogEntry.create!(entry_attrs)
         prune_audit_entries
+        RailsAuditLog.publish_entry(entry)
       end
     end
 

@@ -11,12 +11,8 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 > Publish audit entries to an external message bus as they are written.
 
-- Adapter interface: `RailsAuditLog.streaming_adapter = MyAdapter` — any object implementing `#publish(entry)`
-- Built-in `ActiveSupport::Notifications` adapter — zero-dependency pub/sub for in-process consumers
-- `ActiveJob` adapter — serialises each entry as a job payload and enqueues it; backend-agnostic
 - Kafka adapter (optional, separate gem `rails_audit_log-kafka`) — publishes via `WaterDrop`
 - SQS adapter (optional, separate gem `rails_audit_log-sqs`) — publishes via `aws-sdk-sqs`
-- Streaming is async-safe: `batch_audit` flushes the buffer first, then publishes each entry
 
 ---
 

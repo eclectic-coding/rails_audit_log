@@ -27,6 +27,7 @@ Audit logging for Rails. Tracks `create`, `update`, and `destroy` events as stru
   - [Scheduled and manual pruning](#scheduled-and-manual-pruning)
   - [Encrypting audit data](#encrypting-audit-data)
   - [Multi-tenancy](#multi-tenancy)
+  - [Event streaming](#event-streaming)
   - [Selective tracking](#selective-tracking)
   - [Disabling auditing](#disabling-auditing)
   - [Object reconstruction](#object-reconstruction)
@@ -476,6 +477,54 @@ RailsAuditLog.acts_as_tenant!
 ```
 
 This is equivalent to `RailsAuditLog.current_tenant { ActsAsTenant.current_tenant&.id }`.
+
+### Event streaming
+
+Publish every audit entry to an external consumer as it is written. Set any object implementing `#publish(entry)` as the adapter:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.streaming_adapter = RailsAuditLog::Streaming::NotificationsAdapter.new
+```
+
+#### NotificationsAdapter (built-in, zero dependencies)
+
+Publishes `rails_audit_log.entry_created` synchronously via `ActiveSupport::Notifications`:
+
+```ruby
+ActiveSupport::Notifications.subscribe("rails_audit_log.entry_created") do |*, payload|
+  entry = payload[:entry]
+  Rails.logger.info "Audit: #{entry.event} #{entry.item_type}##{entry.item_id}"
+end
+```
+
+#### ActiveJobAdapter (async)
+
+Enqueues `PublishEntryJob` so publishing does not block the request. The job fires the same `rails_audit_log.entry_created` notification when performed:
+
+```ruby
+RailsAuditLog.streaming_adapter = RailsAuditLog::Streaming::ActiveJobAdapter.new
+# or with a custom queue:
+RailsAuditLog.streaming_adapter = RailsAuditLog::Streaming::ActiveJobAdapter.new(queue: :streaming)
+```
+
+#### Custom adapters
+
+Any object implementing `#publish(entry)` works:
+
+```ruby
+class MyAdapter
+  def publish(entry)
+    MyMessageBus.publish("audit", entry.attributes)
+  end
+end
+
+RailsAuditLog.streaming_adapter = MyAdapter.new
+```
+
+#### Batch mode
+
+`batch_audit` flushes the bulk `INSERT` first, then calls `#publish` for each entry individually — streaming consumers receive every entry even in batch mode.
 
 ### Selective tracking
 

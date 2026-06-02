@@ -1,5 +1,7 @@
 require "rails_audit_log/version"
 require "rails_audit_log/engine"
+require "rails_audit_log/streaming/notifications_adapter"
+require "rails_audit_log/streaming/active_job_adapter"
 
 # RailsAuditLog is a Rails engine that tracks ActiveRecord +create+, +update+,
 # and +destroy+ events as {AuditLogEntry} records with JSON-first storage and
@@ -90,6 +92,15 @@ module RailsAuditLog
   # @return [Integer]
   mattr_accessor :page_size, default: 25
 
+  # The active streaming adapter. Any object implementing +#publish(entry)+.
+  # Called after every audit entry is persisted, including batch writes.
+  # Set to +nil+ (default) to disable streaming.
+  #
+  # @return [#publish, nil]
+  # @example
+  #   RailsAuditLog.streaming_adapter = RailsAuditLog::Streaming::NotificationsAdapter.new
+  mattr_accessor :streaming_adapter, default: nil
+
   # Controls how an actor object is serialised into the +whodunnit_snapshot+
   # string column. Defaults to +actor.name+ when available, otherwise +to_s+.
   #
@@ -141,6 +152,16 @@ module RailsAuditLog
     end
 
     current_tenant { ActsAsTenant.current_tenant&.id }
+  end
+
+  # Passes +entry+ to the configured {.streaming_adapter} if one is set.
+  # No-ops when no adapter is configured.
+  #
+  # @api private
+  # @param entry [AuditLogEntry]
+  # @return [void]
+  def self.publish_entry(entry)
+    streaming_adapter&.publish(entry)
   end
 
   # Sets or returns the authentication block used to gate the web dashboard.
@@ -273,7 +294,10 @@ module RailsAuditLog
     begin
       result = yield
       batch = Thread.current[:rails_audit_log_batch]
-      AuditLogEntry.insert_all!(batch) if batch.any?
+      if batch.any?
+        AuditLogEntry.insert_all!(batch)
+        batch.each { |attrs| publish_entry(AuditLogEntry.new(attrs)) } if streaming_adapter
+      end
       result
     ensure
       Thread.current[:rails_audit_log_batch] = nil
