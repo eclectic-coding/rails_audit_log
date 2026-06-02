@@ -91,6 +91,16 @@ module RailsAuditLog
       end
     }
 
+    # Entries belonging to a specific tenant.
+    # Composable with all other scopes.
+    #
+    # @param id [String, Integer] the tenant identifier stored in +tenant_id+
+    # @return [ActiveRecord::Relation]
+    # @example
+    #   AuditLogEntry.for_tenant("acme")
+    #   AuditLogEntry.for_tenant(Current.tenant_id).updated_events
+    scope :for_tenant, ->(id) { where(tenant_id: id) }
+
     # @!endgroup
 
     # @!group Time scopes

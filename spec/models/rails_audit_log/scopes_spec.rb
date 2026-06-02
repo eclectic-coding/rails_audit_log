@@ -137,4 +137,33 @@ RSpec.describe RailsAuditLog::AuditLogEntry, "query scopes" do
       expect(described_class.touching(:title)).to be_empty
     end
   end
+
+  describe ".for_tenant" do
+    before { post; described_class.delete_all }
+
+    it "returns only entries for the given tenant" do
+      entry(tenant_id: "acme")
+      entry(tenant_id: "globex")
+      entry(tenant_id: nil)
+
+      results = described_class.for_tenant("acme")
+      expect(results.count).to eq(1)
+      expect(results.first.tenant_id).to eq("acme")
+    end
+
+    it "returns an empty relation when no entries match" do
+      entry(tenant_id: "globex")
+      expect(described_class.for_tenant("acme")).to be_empty
+    end
+
+    it "is composable with other scopes" do
+      entry(event: "create", tenant_id: "acme")
+      entry(event: "update", tenant_id: "acme")
+      entry(event: "create", tenant_id: "globex")
+
+      results = described_class.for_tenant("acme").created_events
+      expect(results.count).to eq(1)
+      expect(results.first.event).to eq("create")
+    end
+  end
 end

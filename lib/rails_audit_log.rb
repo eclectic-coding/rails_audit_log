@@ -127,6 +127,22 @@ module RailsAuditLog
     @current_tenant
   end
 
+  # Wires {.current_tenant} to +ActsAsTenant.current_tenant&.id+ so audit
+  # entries are automatically scoped to the Acts As Tenant context.
+  # Call once in an initializer after the gem is loaded.
+  #
+  # @raise [RuntimeError] if the +acts_as_tenant+ gem is not loaded
+  # @return [void]
+  # @example
+  #   RailsAuditLog.acts_as_tenant!
+  def self.acts_as_tenant!
+    unless defined?(ActsAsTenant)
+      raise "ActsAsTenant is not loaded. Add the `acts_as_tenant` gem to your Gemfile."
+    end
+
+    current_tenant { ActsAsTenant.current_tenant&.id }
+  end
+
   # Sets or returns the authentication block used to gate the web dashboard.
   # The block is evaluated in controller context, so controller helpers
   # (e.g. +current_user+) are available directly.

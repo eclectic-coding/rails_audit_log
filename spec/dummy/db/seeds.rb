@@ -129,5 +129,6 @@ puts "  #{Comment.count} comments"
 puts "  #{Article.count} articles (only: [:title])"
 puts "  #{RailsAuditLog::AuditLogEntry.count} audit log entries"
 puts "  RailsAuditLog.connects_to: #{RailsAuditLog.connects_to.inspect} (nil = default connection)"
-puts "  tenant entries: #{RailsAuditLog::AuditLogEntry.where.not(tenant_id: nil).count} with tenant_id set"
+acme_count = RailsAuditLog::AuditLogEntry.for_tenant("acme").count
+puts "  tenant entries: #{RailsAuditLog::AuditLogEntry.where.not(tenant_id: nil).count} with tenant_id set (acme: #{acme_count})"
 puts "Done."

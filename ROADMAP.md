@@ -7,16 +7,6 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 ---
 
 
-## 1.3.0 — Multi-tenancy
-
-> Built-in tenant scoping so audit entries are naturally isolated in multi-tenant apps.
-
-- `AuditLogEntry.for_tenant(id)` scope — filters all queries to a single tenant; composable with existing scopes
-- Dashboard `/audit` automatically scopes to the current tenant when the resolver is configured
-- Acts As Tenant compatibility helper: `RailsAuditLog.acts_as_tenant!` wires the resolver to `ActsAsTenant.current_tenant`
-
----
-
 ## 1.4.0 — Event streaming
 
 > Publish audit entries to an external message bus as they are written.

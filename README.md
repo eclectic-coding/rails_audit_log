@@ -457,6 +457,26 @@ end
 
 The per-model lambda takes precedence over the global resolver. Both accept zero-argument lambdas and store whatever the block returns in the `tenant_id` string column.
 
+Scope queries to a single tenant with `for_tenant`:
+
+```ruby
+AuditLogEntry.for_tenant("acme")
+AuditLogEntry.for_tenant(Current.tenant_id).updated_events.since(1.week.ago)
+```
+
+The web dashboard (`/audit`) automatically applies `for_tenant` when `current_tenant` is configured, so entries from other tenants are never exposed.
+
+#### Acts As Tenant integration
+
+Wire the resolver to `ActsAsTenant` in one line:
+
+```ruby
+# config/initializers/rails_audit_log.rb
+RailsAuditLog.acts_as_tenant!
+```
+
+This is equivalent to `RailsAuditLog.current_tenant { ActsAsTenant.current_tenant&.id }`.
+
 ### Selective tracking
 
 Track only specific attributes, or exclude noisy ones:
