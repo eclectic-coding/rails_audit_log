@@ -1,7 +1,8 @@
 module RailsAuditLog
   class WriteAuditLogJob < ApplicationJob
     def perform(entry_attrs, version_limit: nil, retention_period: nil)
-      AuditLogEntry.create!(entry_attrs)
+      entry = AuditLogEntry.create!(entry_attrs)
+      RailsAuditLog.publish_entry(entry)
 
       item_type = entry_attrs["item_type"]
       item_id   = entry_attrs["item_id"]
