@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-02
+
 ### Added
 
 - `RailsAuditLog.current_tenant { Current.tenant_id }` — global tenant resolver; the block is called at write time and its return value is stored in a new `tenant_id` string column on `audit_log_entries`; used when no per-model override is set
@@ -177,7 +179,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RailsAuditLog::Controller` concern — include in any controller and call `audit_log_actor { current_user }` to automatically wire the actor for every request
 - Engine properly isolated under `RailsAuditLog` namespace; `Auditable` and `Controller` are Zeitwerk-autoloaded from `app/concerns/` — no manual `require` needed
 
-[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/rails_audit_log/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.3.0
 [1.2.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.2.0
 [1.1.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.1.0
 [1.0.0]: https://github.com/eclectic-coding/rails_audit_log/releases/tag/v1.0.0
