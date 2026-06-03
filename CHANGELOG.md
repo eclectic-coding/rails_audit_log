@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2026-06-03
 
-## [Unreleased]
-
-## [1.5.0] - 2026-06-03
-
 ### Added
 
 - `rails_audit_log-graphql` companion gem — mountable GraphQL endpoint at `/audit/graphql`; ships separately so `graphql-ruby` is never a transitive dependency; exposes `AuditLogEntryType`, filterable `Query.auditLogEntries`, single-entry `Query.auditLogEntry`, and `Subscription.auditLogEntryCreated` for real-time streams via Action Cable; authentication re-uses `RailsAuditLog.authenticate`
