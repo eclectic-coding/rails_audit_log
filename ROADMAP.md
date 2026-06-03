@@ -8,26 +8,3 @@ Each milestone below ships enough to be useful on its own. The 0.x series builds
 
 
 
-## 1.5.0 — GraphQL API (`rails_audit_log-graphql`)
-
-> Queryable audit trail for API-first apps — shipped as a standalone companion gem.
-
-Published separately as **`rails_audit_log-graphql`** so `graphql-ruby` is never a transitive dependency for users who don't need it. Add both gems and mount the extra engine:
-
-```ruby
-# Gemfile
-gem "rails_audit_log"
-gem "rails_audit_log-graphql"
-
-# config/routes.rb
-mount RailsAuditLog::Engine,          at: "/audit"
-mount RailsAuditLog::GraphQL::Engine, at: "/audit/graphql"
-```
-
-Authentication re-uses `RailsAuditLog.authenticate` — nothing extra to configure.
-
-Features:
-- `AuditLogEntryType` — GraphQL object type exposing all public fields
-- `Query.auditLogEntries(event:, itemType:, itemId:, actorId:, since:, until:, page:)` — filterable, paginated query
-- `Query.auditLogEntry(id:)` — single entry lookup with full diff
-- `Subscription.auditLogEntryCreated(itemType:, itemId:)` — real-time stream for a specific resource (requires Action Cable)
