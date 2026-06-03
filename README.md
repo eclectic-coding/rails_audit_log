@@ -909,13 +909,40 @@ article.paper_trail.version_at(1.week.ago) # reconstructed state at a point in t
 
 [↑ Table of contents](#table-of-contents)
 
-> Coming in the 1.x series
-
-| Gem | What it adds |
-|---|---|
-| `rails_audit_log-graphql` | Mountable GraphQL endpoint at `/audit/graphql` — queryable audit trail for API-first apps without forcing `graphql-ruby` on users who don't need it |
-
 Each companion gem declares `rails_audit_log` as a dependency so you only add what you use.
+
+### `rails_audit_log-graphql`
+
+[![Gem Version](https://img.shields.io/gem/v/rails_audit_log-graphql.svg)](https://rubygems.org/gems/rails_audit_log-graphql)
+
+A mountable GraphQL endpoint for API-first apps. Shipped as a separate gem so `graphql-ruby` is never a transitive dependency for users who don't need it.
+
+Add both gems to your `Gemfile`:
+
+```ruby
+gem "rails_audit_log"
+gem "rails_audit_log-graphql"
+```
+
+Mount the GraphQL engine alongside the main engine:
+
+```ruby
+# config/routes.rb
+mount RailsAuditLog::Engine,          at: "/audit"
+mount RailsAuditLog::GraphQL::Engine, at: "/audit/graphql"
+```
+
+Authentication re-uses `RailsAuditLog.authenticate` — nothing extra to configure.
+
+**Queries and subscriptions:**
+
+| Operation | Signature | Description |
+|---|---|---|
+| `Query.auditLogEntries` | `(event:, itemType:, itemId:, actorId:, since:, until:, page:)` | Filterable, paginated list |
+| `Query.auditLogEntry` | `(id:)` | Single entry lookup with full diff |
+| `Subscription.auditLogEntryCreated` | `(itemType:, itemId:)` | Real-time stream for a resource (requires Action Cable) |
+
+All fields on `AuditLogEntry` are exposed via `AuditLogEntryType`.
 
 ## Requirements
 
