@@ -142,9 +142,9 @@ module RailsAuditLog
     #   post.audit_log_entries.updated_events.touching(:published_at)
     scope :touching, ->(attribute) {
       if connection.adapter_name =~ /PostgreSQL/i
-        # :nocov:
+        # simplecov:disable
         where("object_changes->>? IS NOT NULL", attribute.to_s)
-        # :nocov:
+        # simplecov:enable
       else
         where("json_extract(object_changes, ?) IS NOT NULL", "$.#{attribute}")
       end
