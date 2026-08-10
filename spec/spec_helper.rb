@@ -7,19 +7,19 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
 ])
 
 SimpleCov.start "rails" do
-  add_filter "/spec/"
-  add_filter "/lib/rails_audit_log/version.rb"
-  add_filter "/lib/generators/"
-  add_filter "/app/controllers/rails_audit_log/application_controller.rb"
-  add_filter "/app/views/"
+  skip "/spec/"
+  skip "/lib/rails_audit_log/version.rb"
+  skip "/lib/generators/"
+  skip "/app/controllers/rails_audit_log/application_controller.rb"
+  skip "/app/views/"
 
-  add_group "Models",      "app/models"
-  add_group "Concerns",    "app/concerns"
-  add_group "Controllers", "app/controllers"
-  add_group "Helpers",     "app/helpers"
-  add_group "Jobs",        "app/jobs"
-  add_group "Views",       "app/views"
-  add_group "Library",     "lib"
+  group "Models",      "app/models"
+  group "Concerns",    "app/concerns"
+  group "Controllers", "app/controllers"
+  group "Helpers",     "app/helpers"
+  group "Jobs",        "app/jobs"
+  group "Views",       "app/views"
+  group "Library",     "lib"
 end
 
 RSpec.configure do |config|
