@@ -949,7 +949,7 @@ All fields on `AuditLogEntry` are exposed via `AuditLogEntryType`.
 [↑ Table of contents](#table-of-contents)
 
 - Ruby >= 3.3
-- Rails >= 7.2
+- Rails >= 8.0
 
 ## Performance
 
