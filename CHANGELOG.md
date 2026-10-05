@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Minimum supported Rails raised from 7.2 to 8.0; Rails 7.2 removed from the CI matrix
 - Development Ruby bumped to 4.0.6 and `Gemfile.lock` updated (Rails 8.1.4, rubocop 1.91, simplecov 1.3, and other transitive dependencies); development and CI only, no change to the gem's runtime behavior or gemspec constraints
 
 ## [1.5.0] - 2026-06-03
