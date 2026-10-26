@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Brakeman static analysis (`rake brakeman`) added to the default rake task; tracked `.githooks/pre-push` hook runs the full suite before every push (enabled by `bin/setup`); weekly scheduled `audit.yml` workflow runs bundler-audit and Brakeman
-
 ### Changed
 
 - Development Ruby bumped from 4.0.6 to 4.0.9 (`.ruby-version`); development only, no change to the gem's runtime behavior or gemspec constraints
