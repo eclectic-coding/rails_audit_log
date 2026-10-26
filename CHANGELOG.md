@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Brakeman static analysis (`rake brakeman`) added to the default rake task; tracked `.githooks/pre-push` hook runs the full suite before every push (enabled by `bin/setup`); weekly scheduled `audit.yml` workflow runs bundler-audit and Brakeman
+- Brakeman static analysis (`rake brakeman`) added to the default rake task; tracked `.githooks/pre-push` hook runs the full suite before every push (enabled by `bin/setup`); weekly scheduled `audit.yml` workflow runs bundler-audit and Brakeman; the CI `Security Audit` job also runs Brakeman
 
 ### Changed
 

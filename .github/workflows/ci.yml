@@ -51,6 +51,7 @@ jobs:
 
       - run: bundle exec bundle-audit update
       - run: bundle exec bundle-audit check
+      - run: bundle exec rake brakeman
 
   test:
     name: SQLite / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
