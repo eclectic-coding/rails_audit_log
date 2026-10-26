@@ -14,7 +14,12 @@ task :zeitwerk do
   sh({ "RAILS_ENV" => "test" }, "cd spec/dummy && bundle exec rails runner 'Rails.autoloaders.main.eager_load'")
 end
 
-task default: ["bundle:audit:update", "bundle:audit:check", :rubocop, :zeitwerk, :spec]
+desc "Run Brakeman static analysis on the engine (spec/ and the dummy app are excluded)"
+task :brakeman do
+  sh "bundle exec brakeman -q --no-pager --force-scan --skip-files spec/"
+end
+
+task default: ["bundle:audit:update", "bundle:audit:check", :brakeman, :rubocop, :zeitwerk, :spec]
 
 desc "Run the performance benchmark suite (requires dev:setup first)"
 task :benchmark do

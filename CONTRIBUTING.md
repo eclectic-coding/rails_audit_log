@@ -9,8 +9,10 @@ Clone the repo and install dependencies:
 ```bash
 git clone https://github.com/eclectic-coding/rails_audit_log.git
 cd rails_audit_log
-bundle install
+bin/setup
 ```
+
+`bin/setup` runs `bundle install` and enables the tracked git hooks (`git config core.hooksPath .githooks`). The pre-push hook runs `bundle exec rake` (bundler-audit, Brakeman, RuboCop, Zeitwerk, RSpec); bypass in an emergency with `git push --no-verify`.
 
 Set up the development database and seed it with realistic audit data:
 

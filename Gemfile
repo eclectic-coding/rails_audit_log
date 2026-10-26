@@ -26,6 +26,7 @@ end
 gem "rubocop-rails-omakase", require: false
 
 gem "bundler-audit", require: false
+gem "brakeman", require: false
 
 group :development do
   gem "benchmark-ips", require: false
