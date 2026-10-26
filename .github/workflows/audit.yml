@@ -11,7 +11,7 @@ permissions:
 jobs:
   audit:
     name: Security audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Check out repository
