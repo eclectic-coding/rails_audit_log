@@ -10,7 +10,7 @@ env:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       RUBY_VERSION: "4.0"
       RUBOCOP_CACHE_ROOT: tmp/rubocop
@@ -39,7 +39,7 @@ jobs:
 
   audit:
     name: Security Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@v7
@@ -55,7 +55,7 @@ jobs:
 
   test:
     name: SQLite / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -86,7 +86,7 @@ jobs:
 
   test-mysql:
     name: MySQL / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -124,7 +124,7 @@ jobs:
 
   test-postgres:
     name: PostgreSQL / Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
