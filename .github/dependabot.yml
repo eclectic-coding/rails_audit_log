@@ -9,6 +9,14 @@ updates:
   # Also bump transitive gems (rack, nokogiri, ...); advisories there fail the audit.
   allow:
   - dependency-type: all
+  # One PR per run for all minor/patch bumps (auto-merged once CI passes); majors stay separate PRs.
+  groups:
+    bundler-minor-patch:
+      patterns:
+      - "*"
+      update-types:
+      - minor
+      - patch
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
