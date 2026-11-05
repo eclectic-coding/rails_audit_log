@@ -28,9 +28,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "${{ github.ref_name }}" \
-            --notes "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details." \
+          version="${GITHUB_REF_NAME#v}"
+          # Release notes: the matching CHANGELOG section, then a link to the full file
+          awk -v v="$version" '/^## \[/{p = index($0, "[" v "]") > 0; next} p' CHANGELOG.md | sed '/./,$!d' > "$RUNNER_TEMP/notes.md"
+          printf '\nFull changelog: https://github.com/%s/blob/main/CHANGELOG.md\n' "$GITHUB_REPOSITORY" >> "$RUNNER_TEMP/notes.md"
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file "$RUNNER_TEMP/notes.md" \
             --verify-tag
 
       - name: Publish to RubyGems
